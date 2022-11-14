@@ -1,17 +1,14 @@
 const db = require("../connection");
 const format = require("pg-format");
 
-
 const seed = async (data) => {
+  const { userData, gameData } = data;
 
-    const { userData } = data
-    
-	await db.query(`DROP TABLE IF EXISTS users;`);
-	await db.query(`DROP TABLE IF EXISTS events;`);
-	await db.query(`DROP TABLE IF EXISTS games;`);
+  await db.query(`DROP TABLE IF EXISTS users;`);
+  await db.query(`DROP TABLE IF EXISTS events;`);
+  await db.query(`DROP TABLE IF EXISTS games;`);
 
-
-    await db.query(`
+  await db.query(`
         CREATE TABLE users (
             user_id SERIAL PRIMARY KEY,
             username VARCHAR NOT NULL,
@@ -19,11 +16,11 @@ const seed = async (data) => {
             email VARCHAR,
             friends INT [],
             fav_games INT []
-        );`)
+        );`);
 
-        // check best way to store date/time 
+  // check best way to store date/time
 
-        await db.query(`
+  await db.query(`
         CREATE TABLE events (
             event_id SERIAL PRIMARY KEY,
             title VARCHAR NOT NULL,
@@ -38,9 +35,9 @@ const seed = async (data) => {
             games INT [],
             visibility BOOLEAN,
             willing_to_teach BOOLEAN
-        );`)
+        );`);
 
-    await db.query(`
+  await db.query(`
         CREATE TABLE games (
             game_id SERIAL PRIMARY KEY,
             name VARCHAR NOT NULL,
@@ -49,16 +46,30 @@ const seed = async (data) => {
             min_players INT,
             max_players INT,
             rules_url VARCHAR
-        );`)
+        );`);
 
-        const insertUsersQueryStr = format(
-            "INSERT INTO users (username, name, email) VALUES %L RETURNING *;",
-            userData.map(({ username, name, email }) => [username, name, email])
-        );
+  const insertUsersQueryStr = format(
+    "INSERT INTO users (username, name, email) VALUES %L RETURNING *;",
+    userData.map(({ username, name, email }) => [username, name, email])
+  );
 
-        await db
-		.query(insertUsersQueryStr)
-		.then((result) => result.rows);
-}
+  await db.query(insertUsersQueryStr).then((result) => result.rows);
+
+  const insertGamesQueryStr = format(
+    "INSERT INTO games (name, description, image_url, min_players, max_players, rules_url) VALUES %L RETURNING *;",
+    gameData.map(
+      ({
+        name,
+        description,
+        image_url,
+        min_players,
+        max_players,
+        rules_url,
+      }) => [name, description, image_url, min_players, max_players, rules_url]
+    )
+  );
+
+  await db.query(insertGamesQueryStr).then((result) => result.rows);
+};
 
 module.exports = seed;
