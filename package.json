@@ -1,7 +1,10 @@
 {
+  "main": "listen.js",
   "scripts": {
     "setup-dbs": "psql -f ./database/setup.sql",
-    "seed": "node ./database/seeds/run-seed.js"
+    "seed": "node ./database/seeds/run-seed.js",
+    "start": "node listen.js",
+    "seed-prod": "NODE_ENV=production npm run seed"
   },
   "dependencies": {
     "dotenv": "^16.0.3",
