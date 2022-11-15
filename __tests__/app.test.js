@@ -228,49 +228,48 @@ describe("/api/events/:event_id", () => {
         });
     });
   });
-});
-describe("Error Handling", () => {
-  it("status: 400, Bad Request", () => {
-    return request(app)
-      .get("/api/events/hello")
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("event_id must be a positive integer");
-      });
-  });
-  it("status: 400, Bad Request", () => {
-    return request(app)
-      .get("/api/events/-50")
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("event_id must be a positive integer");
-      });
-  });
-  it("status: 400, Bad Request", () => {
-    return request(app)
-      .get("/api/events/10.5")
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("event_id must be a positive integer");
-      });
-  });
-  it("status: 404, Not Found", () => {
-    return request(app)
-      .get("/api/events/999")
-      .expect(404)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Event Not Found");
-      });
-  });
-
   describe("Error Handling", () => {
-    it("status: 404, Not Found", () => {
+    it("status: 400, Bad Request", () => {
       return request(app)
-        .get("/api/bananas")
-        .expect(404)
+        .get("/api/events/hello")
+        .expect(400)
         .then(({ body: { msg } }) => {
-          expect(msg).toBe("Not Found");
+          expect(msg).toBe("event_id must be a positive integer");
         });
     });
+    it("status: 400, Bad Request", () => {
+      return request(app)
+        .get("/api/events/-50")
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("event_id must be a positive integer");
+        });
+    });
+    it("status: 400, Bad Request", () => {
+      return request(app)
+        .get("/api/events/10.5")
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("event_id must be a positive integer");
+        });
+    });
+    it("status: 404, Not Found", () => {
+      return request(app)
+        .get("/api/events/999")
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Event Not Found");
+        });
+    });
+  });
+});
+describe("Error Handling", () => {
+  it("status: 404, Not Found", () => {
+    return request(app)
+      .get("/api/bananas")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Not Found");
+      });
   });
 });
