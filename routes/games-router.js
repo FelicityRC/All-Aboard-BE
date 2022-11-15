@@ -1,7 +1,11 @@
 const gameRouter = require("express").Router();
 
-const { getGames } = require("../controllers/games.controllers");
+const {
+  getGames,
+  getGameByGameId,
+} = require("../controllers/games.controllers");
 
 gameRouter.get("/", getGames);
+gameRouter.get("/:game_id", getGameByGameId);
 
 module.exports = gameRouter;

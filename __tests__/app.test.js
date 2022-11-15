@@ -114,6 +114,64 @@ describe("GET", () => {
       });
     });
   });
+  describe("/api/games/:game_id", () => {
+    describe("Functionality", () => {
+      it("status: 200, responds with the specified game object", () => {
+        return request(app)
+          .get("/api/games/1")
+          .expect(200)
+          .then(({ body: { game } }) => {
+            expect(game).toBeInstanceOf(Object);
+            expect(game).toEqual({
+              game_id: 1,
+              name: "root",
+              description:
+                " Find adventure in this marvelous asymmetric game. Root provides limitless replay value as you and your friends explore the unique factions all wanting to rule a fantastic forest kingdom. Play as the Marquise de Cat and dominate the woods, extracting its riches and policing its inhabitants, as the Woodland Alliance, gathering supporters and coordinate revolts against the ruling regime, the Eyrie Dynasties, regaining control of the woods while keeping your squabbling court at bay, or as the Vagabond, seeking fame and fortune as you forge alliances and rivalries with the other players. Each faction has its own play style and paths to victory, providing an immersive game experience you will want to play again and again. ",
+              image_url:
+                "https://s3-us-west-1.amazonaws.com/5cc.images/games/uploaded/1540147295104",
+              min_players: 2,
+              max_players: 4,
+              rules_url:
+                "https://drive.google.com/drive/folders/1i9-iCUDzfGMs7HjFHhahwMS6efvvfX5w",
+            });
+          });
+      });
+    });
+    describe("Error Handling", () => {
+      it("status: 400, Bad Request", () => {
+        return request(app)
+          .get("/api/games/words")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("game_id must be a positive integer");
+          });
+      });
+      it("status: 400, Bad Request", () => {
+        return request(app)
+          .get("/api/games/-10")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("game_id must be a positive integer");
+          });
+      });
+      it("status: 400, Bad Request", () => {
+        return request(app)
+          .get("/api/games/12.5")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("game_id must be a positive integer");
+          });
+      });
+      it("status: 404, Not Found", () => {
+        return request(app)
+          .get("/api/games/999")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Game Not Found");
+          });
+      });
+    });
+  });
 });
 
 describe("Error Handling", () => {
