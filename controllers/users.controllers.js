@@ -2,6 +2,7 @@ const {
   selectUsers,
   selectUserByUserId,
   insertUser,
+  updateUser,
 } = require("../models/users.models");
 
 exports.getUsers = (req, res, next) => {
@@ -11,9 +12,9 @@ exports.getUsers = (req, res, next) => {
 };
 
 exports.getUserByUserId = (req, res, next) => {
-  const userId = req.params.user_id;
+  const user_id = req.params.user_id;
 
-  selectUserByUserId(userId)
+  selectUserByUserId(user_id)
     .then((user) => {
       res.status(200).send({ user });
     })
@@ -27,6 +28,17 @@ exports.postUser = (req, res, next) => {
   insertUser(body)
     .then((user) => {
       res.status(201).send({ user });
+    })
+    .catch((err) => next(err));
+};
+
+exports.patchUser = (req, res, next) => {
+  const user_id = req.params.user_id;
+  const body = req.body;
+
+  updateUser(user_id, body)
+    .then((user) => {
+      res.status(200).send({ user });
     })
     .catch((err) => next(err));
 };
