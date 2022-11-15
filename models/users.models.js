@@ -26,3 +26,26 @@ exports.selectUserByUserId = (user_id) => {
       }
     });
 };
+
+exports.insertUser = (body) => {
+  if (!body) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
+
+  if (!(body.username && body.name && body.email)) {
+    return Promise.reject({ status: 400, msg: "Missing Required Fields" });
+  }
+
+  return db
+    .query(
+      `INSERT INTO users
+    (username, name, email)
+    VALUES
+    ($1, $2, $3)
+    RETURNING *`,
+      [body.username, body.name, body.email]
+    )
+    .then(({ rows: [user] }) => {
+      return user;
+    });
+};
