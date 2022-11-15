@@ -24,8 +24,8 @@ const seed = async (data) => {
         CREATE TABLE events (
             event_id SERIAL PRIMARY KEY,
             title VARCHAR NOT NULL,
-            latitude REAL NOT NULL,
-            longitude REAL NOT NULL,
+            latitude NUMERIC NOT NULL,
+            longitude NUMERIC NOT NULL,
             area VARCHAR,
             date DATE NOT NULL,
             start_time TIME NOT NULL,
