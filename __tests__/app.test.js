@@ -201,65 +201,66 @@ describe("GET", () => {
       });
     });
   });
-});
-describe("/api/events/:event_id", () => {
-  describe("Functionality", () => {
-    it("status: 200, responds with the specified event object", () => {
-      return request(app)
-        .get("/api/events/2")
-        .expect(200)
-        .then(({ body: { event } }) => {
-          expect(event).toBeInstanceOf(Object);
-          expect(event).toEqual({
-            event_id: 2,
-            title: "Liverpool MeetUp",
-            latitude: "53.400002",
-            longitude: "-2.983333",
-            area: "Liverpool",
-            date: expect.any(String),
-            start_time: "14:30:00",
-            duration: 120,
-            organiser: 2,
-            visibility: true,
-            willing_to_teach: false,
-            games: null,
-            guests: null,
+
+  describe("/api/events/:event_id", () => {
+    describe("Functionality", () => {
+      it("status: 200, responds with the specified event object", () => {
+        return request(app)
+          .get("/api/events/2")
+          .expect(200)
+          .then(({ body: { event } }) => {
+            expect(event).toBeInstanceOf(Object);
+            expect(event).toEqual({
+              event_id: 2,
+              title: "Liverpool MeetUp",
+              latitude: "53.400002",
+              longitude: "-2.983333",
+              area: "Liverpool",
+              date: expect.any(String),
+              start_time: "14:30:00",
+              duration: 120,
+              organiser: 2,
+              visibility: true,
+              willing_to_teach: false,
+              games: null,
+              guests: null,
+            });
           });
-        });
+      });
     });
-  });
-  describe("Error Handling", () => {
-    it("status: 400, Bad Request", () => {
-      return request(app)
-        .get("/api/events/hello")
-        .expect(400)
-        .then(({ body: { msg } }) => {
-          expect(msg).toBe("event_id must be a positive integer");
-        });
-    });
-    it("status: 400, Bad Request", () => {
-      return request(app)
-        .get("/api/events/-50")
-        .expect(400)
-        .then(({ body: { msg } }) => {
-          expect(msg).toBe("event_id must be a positive integer");
-        });
-    });
-    it("status: 400, Bad Request", () => {
-      return request(app)
-        .get("/api/events/10.5")
-        .expect(400)
-        .then(({ body: { msg } }) => {
-          expect(msg).toBe("event_id must be a positive integer");
-        });
-    });
-    it("status: 404, Not Found", () => {
-      return request(app)
-        .get("/api/events/999")
-        .expect(404)
-        .then(({ body: { msg } }) => {
-          expect(msg).toBe("Event Not Found");
-        });
+    describe("Error Handling", () => {
+      it("status: 400, Bad Request", () => {
+        return request(app)
+          .get("/api/events/hello")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("event_id must be a positive integer");
+          });
+      });
+      it("status: 400, Bad Request", () => {
+        return request(app)
+          .get("/api/events/-50")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("event_id must be a positive integer");
+          });
+      });
+      it("status: 400, Bad Request", () => {
+        return request(app)
+          .get("/api/events/10.5")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("event_id must be a positive integer");
+          });
+      });
+      it("status: 404, Not Found", () => {
+        return request(app)
+          .get("/api/events/999")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Event Not Found");
+          });
+      });
     });
   });
 });
