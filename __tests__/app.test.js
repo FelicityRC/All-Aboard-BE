@@ -35,4 +35,45 @@ describe("GET", () => {
       });
     });
   });
+  describe("/api/users/:user_id", () => {
+    describe("Functionality", () => {
+      it("status: 200, responds with the specified user object", () => {
+        return request(app)
+          .get("/api/users/1")
+          .expect(200)
+          .then(({ body: { user } }) => {
+            expect(user).toBeInstanceOf(Object);
+            expect(user).toEqual({
+              user_id: 1,
+              username: "BigJ",
+              name: "Joe",
+              email: "joefuller042@gmail.com",
+              friends: null,
+              fav_games: null,
+            });
+          });
+      });
+    });
+    describe("Error Handling", () => {
+      it("status: 404, Not Found", () => {
+        return request(app)
+          .get("/api/users/999")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("User Not Found");
+          });
+      });
+    });
+  });
+});
+
+describe("Error Handling", () => {
+  it("status: 404, Not Found", () => {
+    return request(app)
+      .get("/api/bananas")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Not Found");
+      });
+  });
 });
