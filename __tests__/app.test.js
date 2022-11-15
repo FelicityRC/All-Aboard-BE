@@ -172,15 +172,105 @@ describe("GET", () => {
       });
     });
   });
+  describe("/api/events", () => {
+    describe("Functionality", () => {
+      it("status: 200, responds with an array of events", () => {
+        return request(app)
+          .get("/api/events")
+          .expect(200)
+          .then(({ body: { events } }) => {
+            expect(events).toBeInstanceOf(Array);
+            events.forEach((event) => {
+              expect(event).toEqual(
+                expect.objectContaining({
+                  event_id: expect.any(Number),
+                  title: expect.any(String),
+                  latitude: expect.any(Number),
+                  longitude: expect.any(Number),
+                  area: expect.any(String),
+                  date: expect.any(String),
+                  start_time: expect.any(String),
+                  duration: expect.any(Number),
+                  organiser: expect.any(Number),
+                  visibility: expect.any(Boolean),
+                  willing_to_teach: expect.any(Boolean),
+                })
+              );
+            });
+          });
+      });
+    });
+  });
 });
-
+describe("/api/events/:event_id", () => {
+  describe("Functionality", () => {
+    it("status: 200, responds with the specified event object", () => {
+      return request(app)
+        .get("/api/events/2")
+        .expect(200)
+        .then(({ body: { event } }) => {
+          expect(event).toBeInstanceOf(Object);
+          expect(event).toEqual({
+            event_id: 2,
+            title: "Liverpool MeetUp",
+            latitude: expect.any(Number),
+            longitude: expect.any(Number),
+            area: "Liverpool",
+            date: expect.any(String),
+            start_time: "14:30:00",
+            duration: 120,
+            organiser: 2,
+            visibility: true,
+            willing_to_teach: false,
+            games: null,
+            guests: null,
+          });
+        });
+    });
+  });
+});
 describe("Error Handling", () => {
+  it("status: 400, Bad Request", () => {
+    return request(app)
+      .get("/api/events/hello")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("event_id must be a positive integer");
+      });
+  });
+  it("status: 400, Bad Request", () => {
+    return request(app)
+      .get("/api/events/-50")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("event_id must be a positive integer");
+      });
+  });
+  it("status: 400, Bad Request", () => {
+    return request(app)
+      .get("/api/events/10.5")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("event_id must be a positive integer");
+      });
+  });
   it("status: 404, Not Found", () => {
     return request(app)
-      .get("/api/bananas")
+      .get("/api/events/999")
       .expect(404)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Not Found");
+        expect(msg).toBe("Event Not Found");
       });
+  });
+
+  describe("Error Handling", () => {
+    it("status: 404, Not Found", () => {
+      return request(app)
+        .get("/api/bananas")
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not Found");
+        });
+    });
   });
 });
