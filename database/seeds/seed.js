@@ -4,9 +4,9 @@ const format = require("pg-format");
 const seed = async (data) => {
   const { userData, gameData, eventData } = data;
 
-  await db.query(`DROP TABLE IF EXISTS users;`);
   await db.query(`DROP TABLE IF EXISTS events;`);
   await db.query(`DROP TABLE IF EXISTS games;`);
+  await db.query(`DROP TABLE IF EXISTS users;`);
 
   await db.query(`
         CREATE TABLE users (
