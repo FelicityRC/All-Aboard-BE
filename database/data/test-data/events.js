@@ -1,6 +1,7 @@
 module.exports = [
   {
     title: "Manchester MeetUp",
+    description: "The prototype boardgamemeetup",
     latitude: 53.483959,
     longitude: -2.244644,
     area: "Manchester",
@@ -13,6 +14,7 @@ module.exports = [
   },
   {
     title: "Liverpool MeetUp",
+    description: "The actual, real, real boardgamemeetup",
     latitude: 53.400002,
     longitude: -2.983333,
     area: "Liverpool",
