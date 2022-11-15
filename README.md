@@ -5,3 +5,8 @@
 npm init
 npm install express
 npm install pg
+
+## Setup Databases:
+
+npm run setup-dbs
+npm run seed
