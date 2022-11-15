@@ -7,7 +7,6 @@ exports.selectEvents = () => {
 };
 
 exports.selectEventByEventId = (event_id) => {
-  // below checks that the event_id is a positive number
   const num = Number(event_id);
   if (!(Number.isInteger(num) && num > 0)) {
     return Promise.reject({
@@ -24,5 +23,42 @@ exports.selectEventByEventId = (event_id) => {
       } else {
         return Promise.reject({ status: 404, msg: "Event Not Found" });
       }
+    });
+};
+
+exports.insertEvent = (body) => {
+  if (!body) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
+  if (
+    !(
+      body.title &&
+      body.latitude &&
+      body.longitude &&
+      body.area &&
+      body.date &&
+      body.start_time &&
+      body.organiser
+    )
+  ) {
+    return Promise.reject({ status: 400, msg: "Missing Required Fields" });
+  }
+
+  return db
+    .query(
+      `INSERT INTO events (title, latitude, longitude, area, date, start_time, organiser) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;
+    `,
+      [
+        body.title,
+        body.latitude,
+        body.longitude,
+        body.area,
+        body.date,
+        body.start_time,
+        body.organiser,
+      ]
+    )
+    .then(({ rows: [event] }) => {
+      return event;
     });
 };
