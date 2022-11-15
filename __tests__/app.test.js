@@ -55,6 +55,30 @@ describe("GET", () => {
       });
     });
     describe("Error Handling", () => {
+      it("status: 400, Bad Request", () => {
+        return request(app)
+          .get("/api/users/words")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("user_id must be a positive integer");
+          });
+      });
+      it("status: 400, Bad Request", () => {
+        return request(app)
+          .get("/api/users/-10")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("user_id must be a positive integer");
+          });
+      });
+      it("status: 400, Bad Request", () => {
+        return request(app)
+          .get("/api/users/12.5")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("user_id must be a positive integer");
+          });
+      });
       it("status: 404, Not Found", () => {
         return request(app)
           .get("/api/users/999")
