@@ -89,6 +89,31 @@ describe("GET", () => {
       });
     });
   });
+  describe("/api/games", () => {
+    describe("Functionality", () => {
+      it("status: 200, responds with an array of games", () => {
+        return request(app)
+          .get("/api/games")
+          .expect(200)
+          .then(({ body: { games } }) => {
+            expect(games).toBeInstanceOf(Array);
+            games.forEach((game) => {
+              expect(game).toEqual(
+                expect.objectContaining({
+                  name: expect.any(String),
+                  description: expect.any(String),
+                  image_url: expect.any(String),
+                  min_players: expect.any(Number),
+                  max_players: expect.any(Number),
+                  // some rules_urls are null
+                  //   rules_url: expect.any(String),
+                })
+              );
+            });
+          });
+      });
+    });
+  });
 });
 
 describe("Error Handling", () => {
