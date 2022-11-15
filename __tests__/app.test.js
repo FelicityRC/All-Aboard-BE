@@ -264,6 +264,46 @@ describe("GET", () => {
     });
   });
 });
+
+describe("POST", () => {
+  describe("/api/users", () => {
+    describe("Functionality", () => {
+      it("status: 201, adds a new user and returns it", () => {
+        return request(app)
+          .post("/api/users")
+          .send({
+            username: "Facility",
+            name: "Felicity",
+            email: "fbomb@hotmail.co.uk",
+          })
+          .expect(201)
+          .then(({ body: { user } }) => {
+            expect(user).toEqual({
+              user_id: 3,
+              username: "Facility",
+              name: "Felicity",
+              email: "fbomb@hotmail.co.uk",
+              fav_games: null,
+              friends: null,
+            });
+          });
+      });
+    });
+
+    describe("Error Handling", () => {
+      it("status: 400, missing required fields on body", () => {
+        return request(app)
+          .post("/api/users")
+          .send({})
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Missing Required Fields");
+          });
+      });
+    });
+  });
+});
+
 describe("Error Handling", () => {
   it("status: 404, Not Found", () => {
     return request(app)
