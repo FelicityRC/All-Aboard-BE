@@ -185,6 +185,7 @@ describe("GET", () => {
                 expect.objectContaining({
                   event_id: expect.any(Number),
                   title: expect.any(String),
+                  description: expect.any(String),
                   latitude: expect.any(String),
                   longitude: expect.any(String),
                   area: expect.any(String),
@@ -213,6 +214,7 @@ describe("GET", () => {
             expect(event).toEqual({
               event_id: 2,
               title: "Liverpool MeetUp",
+              description: "The actual, real, real boardgamemeetup",
               latitude: "53.400002",
               longitude: "-2.983333",
               area: "Liverpool",
