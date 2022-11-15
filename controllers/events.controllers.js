@@ -12,6 +12,7 @@ exports.getEvents = (req, res, next) => {
 
 exports.getEventByEventId = (req, res, next) => {
   const eventId = req.params.event_id;
+
   selectEventByEventId(eventId)
     .then((event) => {
       res.status(200).send({ event });

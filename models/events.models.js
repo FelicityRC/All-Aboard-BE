@@ -46,8 +46,7 @@ exports.insertEvent = (body) => {
 
   return db
     .query(
-      `INSERT INTO events (title, latitude, longitude, area, date, start_time, organiser) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;
-    `,
+      `INSERT INTO events (title, latitude, longitude, area, date, start_time, organiser) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
       [
         body.title,
         body.latitude,
