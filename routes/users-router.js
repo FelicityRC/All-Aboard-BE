@@ -4,9 +4,10 @@ const {
   getUsers,
   getUserByUserId,
   postUser,
+  patchUser,
 } = require("../controllers/users.controllers");
 
 userRouter.route("/").get(getUsers).post(postUser);
-userRouter.get("/:user_id", getUserByUserId);
+userRouter.route("/:user_id").get(getUserByUserId).patch(patchUser);
 
 module.exports = userRouter;
