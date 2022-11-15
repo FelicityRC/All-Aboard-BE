@@ -2,7 +2,7 @@ const db = require("../connection");
 const format = require("pg-format");
 
 const seed = async (data) => {
-  const { userData, gameData } = data;
+  const { userData, gameData, eventData } = data;
 
   await db.query(`DROP TABLE IF EXISTS users;`);
   await db.query(`DROP TABLE IF EXISTS events;`);
@@ -70,6 +70,37 @@ const seed = async (data) => {
   );
 
   await db.query(insertGamesQueryStr).then((result) => result.rows);
+
+  const insertEventsQueryStr = format(
+    "INSERT INTO events (title, latitude, longitude, area, date, start_time, duration, organiser, visibility, willing_to_teach) VALUES %L RETURNING *;",
+    eventData.map(
+      ({
+        title,
+        latitude,
+        longitude,
+        area,
+        date,
+        start_time,
+        duration,
+        organiser,
+        visibility,
+        willing_to_teach,
+      }) => [
+        title,
+        latitude,
+        longitude,
+        area,
+        date,
+        start_time,
+        duration,
+        organiser,
+        visibility,
+        willing_to_teach,
+      ]
+    )
+  );
+
+  await db.query(insertEventsQueryStr).then((result) => result.rows);
 };
 
 module.exports = seed;
