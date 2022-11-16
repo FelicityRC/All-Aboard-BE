@@ -4,6 +4,7 @@ const {
   insertEvent,
   updateEvent,
   selectUsersByEventId,
+  removeEvent,
 } = require("../models/events.models");
 
 exports.getEvents = (req, res, next) => {
@@ -48,6 +49,15 @@ exports.getUsersByEventId = (req, res, next) => {
   selectUsersByEventId(event_id)
     .then((users) => {
       res.status(200).send({ users });
+    })
+    .catch((err) => next(err));
+};
+
+exports.deleteEvent = (req, res, next) => {
+  const event_id = req.params.event_id;
+  removeEvent(event_id)
+    .then(() => {
+      res.status(204).send({});
     })
     .catch((err) => next(err));
 };
