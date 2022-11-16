@@ -304,8 +304,56 @@ describe("POST", () => {
       });
     });
   });
+  describe("/api/events", () => {
+    describe("Functionality", () => {
+      it("status: 201, adds a new event and returns it", () => {
+        return request(app)
+          .post("/api/events")
+          .send({
+            title: "Be There or Be Square",
+            longitude: "-2.983333",
+            latitude: "53.400002",
+            area: "Didsbury",
+            date: "2021-01-18T00:00:00.000Z",
+            start_time: "12:00:00",
+            organiser: 1,
+          })
+          .expect(201)
+          .then(({ body: { event } }) => {
+            expect(event).toEqual({
+              event_id: 3,
+              title: "Be There or Be Square",
+              description: null,
+              longitude: "-2.983333",
+              latitude: "53.400002",
+              area: "Didsbury",
+              date: "2021-01-18T00:00:00.000Z",
+              start_time: "12:00:00",
+              duration: null,
+              organiser: 1,
+              guests: null,
+              games: null,
+              visibility: true,
+              willing_to_teach: false,
+            });
+          });
+      });
+    });
 
+    describe("Error Handling", () => {
+      it("status: 400, missing required fields on body", () => {
+        return request(app)
+          .post("/api/events")
+          .send({})
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Missing Required Fields");
+          });
+      });
+    });
+  });
 });
+
 describe("PATCH", () => {
   describe("/api/users/:user_id", () => {
     describe("Functionality", () => {
@@ -377,64 +425,13 @@ describe("PATCH", () => {
   });
 });
 
-
-  describe("/api/events", () => {
-    describe("Functionality", () => {
-      it("status: 201, adds a new event and returns it", () => {
-        return request(app)
-          .post("/api/events")
-          .send({
-            title: "Be There or Be Square",
-            longitude: "-2.983333",
-            latitude: "53.400002",
-            area: "Didsbury",
-            date: "2021-01-18T00:00:00.000Z",
-            start_time: "12:00:00",
-            organiser: 1,
-          })
-          .expect(201)
-          .then(({ body: { event } }) => {
-            expect(event).toEqual({
-              event_id: 3,
-              title: "Be There or Be Square",
-              description: null,
-              longitude: "-2.983333",
-              latitude: "53.400002",
-              area: "Didsbury",
-              date: "2021-01-18T00:00:00.000Z",
-              start_time: "12:00:00",
-              duration: null,
-              organiser: 1,
-              guests: null,
-              games: null,
-              visibility: true,
-              willing_to_teach: false,
-            });
-          });
+describe("Error Handling", () => {
+  it("status: 404, Not Found", () => {
+    return request(app)
+      .get("/api/bananas")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Not Found");
       });
-    });
-
-    describe("Error Handling", () => {
-      it("status: 400, missing required fields on body", () => {
-        return request(app)
-          .post("/api/events")
-          .send({})
-          .expect(400)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe("Missing Required Fields");
-          });
-      });
-    });
-  });
-
-  describe("Error Handling", () => {
-    it("status: 404, Not Found", () => {
-      return request(app)
-        .get("/api/bananas")
-        .expect(404)
-        .then(({ body: { msg } }) => {
-          expect(msg).toBe("Not Found");
-        });
-    });
   });
 });
