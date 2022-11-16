@@ -55,11 +55,28 @@ exports.selectUsersByEventId = (event_id) => {
       }
     });
 };
+// exports.selectGamesByEventId = (event_id) => {
+//   const num = Number(event_id);
+//   if (!(Number.isInteger(num) && num > 0)) {
+//     return Promise.reject({
+//       status: 400,
+//       msg: "event_id must be a positive integer",
+//     });
+//   }
+
+//   return db.query(`SELECT * FROM events WHERE event_id=$1`, [event_id])
+//   .then(({ rows: [event] }) => {
+//     let queryString = `SELECT * FROM games WHERE `;
+//     for (const game_id of event.games) {
+//       queryString += `game_id=${}`
+//     }
+//   })
+// };
+
 exports.insertEvent = (body) => {
   if (!body) {
     return Promise.reject({ status: 400, msg: "Bad Request" });
   }
-
   if (
     !(
       body.title &&
@@ -73,23 +90,42 @@ exports.insertEvent = (body) => {
   ) {
     return Promise.reject({ status: 400, msg: "Missing Required Fields" });
   }
+  const validKeys = [
+    "title",
+    "latitude",
+    "longitude",
+    "area",
+    "date",
+    "start_time",
+    "organiser",
+    "description",
+    "duration",
+    "guests",
+    "games",
+    "visibility",
+    "willing_to_teach",
+  ];
 
-  return db
-    .query(
-      `INSERT INTO events (title, latitude, longitude, area, date, start_time, organiser) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-      [
-        body.title,
-        body.latitude,
-        body.longitude,
-        body.area,
-        body.date,
-        body.start_time,
-        body.organiser,
-      ]
-    )
-    .then(({ rows: [event] }) => {
-      return event;
-    });
+  const keys = Object.keys(body);
+
+  let queryString = `INSERT INTO events (`;
+  for (const key of keys) {
+    if (validKeys.includes(key)) {
+      queryString += key + ", ";
+    }
+  }
+  queryString = queryString.slice(0, -2);
+  queryString += `) VALUES (`;
+  for (const key of keys) {
+    queryString += `'${body[key]}', `;
+  }
+  queryString = queryString.slice(0, -2);
+  queryString += `) RETURNING *;`;
+  console.log(queryString);
+
+  return db.query(queryString).then(({ rows: [event] }) => {
+    return event;
+  });
 };
 
 exports.updateEvent = (event_id, body) => {
