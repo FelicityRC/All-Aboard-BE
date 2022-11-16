@@ -32,18 +32,18 @@ exports.insertUser = (body) => {
     return Promise.reject({ status: 400, msg: "Bad Request" });
   }
 
-  if (!(body.username && body.name && body.email)) {
+  if (!(body.username && body.name && body.email && body.location)) {
     return Promise.reject({ status: 400, msg: "Missing Required Fields" });
   }
 
   return db
     .query(
       `INSERT INTO users
-    (username, name, email)
+    (username, name, email, location)
     VALUES
-    ($1, $2, $3)
+    ($1, $2, $3, $4)
     RETURNING *`,
-      [body.username, body.name, body.email]
+      [body.username, body.name, body.email, body.location]
     )
     .then(({ rows: [user] }) => {
       return user;
@@ -68,6 +68,7 @@ exports.updateUser = (user_id, body) => {
     "username",
     "name",
     "email",
+    "location",
     "fav_games",
     "friends",
     "inc_games",

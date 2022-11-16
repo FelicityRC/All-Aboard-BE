@@ -28,6 +28,7 @@ describe("GET", () => {
                   username: expect.any(String),
                   name: expect.any(String),
                   email: expect.any(String),
+                  location: expect.any(String),
                 })
               );
             });
@@ -48,6 +49,7 @@ describe("GET", () => {
               username: "BigJ",
               name: "Joe",
               email: "joefuller042@gmail.com",
+              location: "Liverpool",
               friends: [],
               fav_games: [],
             });
@@ -279,6 +281,7 @@ describe("GET", () => {
                   username: expect.any(String),
                   name: expect.any(String),
                   email: expect.any(String),
+                  location: expect.any(String),
                 })
               );
             });
@@ -332,6 +335,7 @@ describe("POST", () => {
             username: "Facility",
             name: "Felicity",
             email: "fbomb@hotmail.co.uk",
+            location: "Manchester",
           })
           .expect(201)
           .then(({ body: { user } }) => {
@@ -340,6 +344,7 @@ describe("POST", () => {
               username: "Facility",
               name: "Felicity",
               email: "fbomb@hotmail.co.uk",
+              location: "Manchester",
               fav_games: [],
               friends: [],
             });
@@ -423,6 +428,7 @@ describe("PATCH", () => {
               username: "BigJ",
               name: "Joe",
               email: "newemail@email.com",
+              location: "Liverpool",
               fav_games: [],
               friends: [],
             });
@@ -439,6 +445,7 @@ describe("PATCH", () => {
               username: "BigJ",
               name: "Joe",
               email: "newemail@email.com",
+              location: "Liverpool",
               fav_games: [],
               friends: [],
             });
@@ -455,6 +462,7 @@ describe("PATCH", () => {
               username: "BigJ",
               name: "Joe",
               email: "joefuller042@gmail.com",
+              location: "Liverpool",
               fav_games: [1, 2],
               friends: [],
             });
@@ -472,6 +480,7 @@ describe("PATCH", () => {
               username: "BigJ",
               name: "Joe",
               email: "joefuller042@gmail.com",
+              location: "Liverpool",
               fav_games: [3],
               friends: [1, 2],
             });

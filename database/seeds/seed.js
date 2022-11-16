@@ -13,7 +13,8 @@ const seed = async (data) => {
             user_id SERIAL PRIMARY KEY,
             username VARCHAR NOT NULL,
             name VARCHAR,
-            email VARCHAR,
+            email VARCHAR NOT NULL,
+            location VARCHAR,
             friends INT[] DEFAULT ARRAY[]::INT[],
             fav_games INT[] DEFAULT ARRAY[]::INT[]
         );`);
@@ -50,8 +51,13 @@ const seed = async (data) => {
         );`);
 
   const insertUsersQueryStr = format(
-    "INSERT INTO users (username, name, email) VALUES %L RETURNING *;",
-    userData.map(({ username, name, email }) => [username, name, email])
+    "INSERT INTO users (username, name, email, location) VALUES %L RETURNING *;",
+    userData.map(({ username, name, email, location }) => [
+      username,
+      name,
+      email,
+      location,
+    ])
   );
 
   await db.query(insertUsersQueryStr).then((result) => result.rows);
