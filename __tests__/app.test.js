@@ -48,8 +48,8 @@ describe("GET", () => {
               username: "BigJ",
               name: "Joe",
               email: "joefuller042@gmail.com",
-              friends: null,
-              fav_games: null,
+              friends: [],
+              fav_games: [],
             });
           });
       });
@@ -224,7 +224,7 @@ describe("GET", () => {
               organiser: 2,
               visibility: true,
               willing_to_teach: false,
-              games: null,
+              games: [],
               guests: [1, 2],
             });
           });
@@ -340,8 +340,8 @@ describe("POST", () => {
               username: "Facility",
               name: "Felicity",
               email: "fbomb@hotmail.co.uk",
-              fav_games: null,
-              friends: null,
+              fav_games: [],
+              friends: [],
             });
           });
       });
@@ -386,8 +386,8 @@ describe("POST", () => {
               start_time: "12:00:00",
               duration: null,
               organiser: 1,
-              guests: null,
-              games: null,
+              guests: [],
+              games: [],
               visibility: true,
               willing_to_teach: false,
             });
@@ -423,8 +423,8 @@ describe("PATCH", () => {
               username: "BigJ",
               name: "Joe",
               email: "newemail@email.com",
-              fav_games: null,
-              friends: null,
+              fav_games: [],
+              friends: [],
             });
           });
       });
@@ -439,8 +439,8 @@ describe("PATCH", () => {
               username: "BigJ",
               name: "Joe",
               email: "newemail@email.com",
-              fav_games: null,
-              friends: null,
+              fav_games: [],
+              friends: [],
             });
           });
       });
@@ -456,7 +456,7 @@ describe("PATCH", () => {
               name: "Joe",
               email: "joefuller042@gmail.com",
               fav_games: [1, 2],
-              friends: null,
+              friends: [],
             });
           });
       });
@@ -532,7 +532,7 @@ describe("PATCH", () => {
               duration: 120,
               organiser: 2,
               guests: [1, 2],
-              games: null,
+              games: [],
               visibility: true,
               willing_to_teach: false,
             });
@@ -557,7 +557,7 @@ describe("PATCH", () => {
               duration: 120,
               organiser: 2,
               guests: [1, 2],
-              games: null,
+              games: [],
               visibility: false,
               willing_to_teach: false,
             });

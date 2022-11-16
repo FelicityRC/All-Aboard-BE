@@ -14,8 +14,8 @@ const seed = async (data) => {
             username VARCHAR NOT NULL,
             name VARCHAR,
             email VARCHAR,
-            friends INT [],
-            fav_games INT []
+            friends INT[] DEFAULT ARRAY[]::INT[],
+            fav_games INT[] DEFAULT ARRAY[]::INT[]
         );`);
 
   // check best way to store date/time
@@ -34,8 +34,8 @@ const seed = async (data) => {
             organiser INT NOT NULL REFERENCES users(user_id),
             visibility BOOLEAN DEFAULT true,
             willing_to_teach BOOLEAN DEFAULT false,
-            guests INT[],
-            games INT[]
+            guests INT[] DEFAULT ARRAY[]::INT[],
+            games INT[] DEFAULT ARRAY[]::INT[]
         );`);
 
   await db.query(`
