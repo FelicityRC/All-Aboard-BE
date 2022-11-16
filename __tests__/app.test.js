@@ -444,6 +444,22 @@ describe("PATCH", () => {
             });
           });
       });
+      it("status: 200, works with arrays", () => {
+        return request(app)
+          .patch("/api/users/1")
+          .send({ fav_games: [1, 2] })
+          .expect(200)
+          .then(({ body: { user } }) => {
+            expect(user).toEqual({
+              user_id: 1,
+              username: "BigJ",
+              name: "Joe",
+              email: "joefuller042@gmail.com",
+              fav_games: [1, 2],
+              friends: null,
+            });
+          });
+      });
     });
 
     describe("Error Handling", () => {
