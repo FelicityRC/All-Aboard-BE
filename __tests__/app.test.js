@@ -225,7 +225,7 @@ describe("GET", () => {
               visibility: true,
               willing_to_teach: false,
               games: null,
-              guests: null,
+              guests: [1, 2],
             });
           });
       });
@@ -258,6 +258,61 @@ describe("GET", () => {
       it("status: 404, Not Found", () => {
         return request(app)
           .get("/api/events/999")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Event Not Found");
+          });
+      });
+    });
+  });
+  describe("/api/events/:event_id/users", () => {
+    describe("Functionality", () => {
+      it("status: 200, responds with an array of users attending the specified event", () => {
+        return request(app)
+          .get("/api/events/2/users")
+          .expect(200)
+          .then(({ body: { users } }) => {
+            expect(users).toBeInstanceOf(Array);
+            users.forEach((user) => {
+              expect(user).toEqual(
+                expect.objectContaining({
+                  username: expect.any(String),
+                  name: expect.any(String),
+                  email: expect.any(String),
+                })
+              );
+            });
+          });
+      });
+    });
+    describe("Error Handling", () => {
+      it("status: 400, Bad Request", () => {
+        return request(app)
+          .get("/api/events/hello/users")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("event_id must be a positive integer");
+          });
+      });
+      it("status: 400, Bad Request", () => {
+        return request(app)
+          .get("/api/events/-50/users")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("event_id must be a positive integer");
+          });
+      });
+      it("status: 400, Bad Request", () => {
+        return request(app)
+          .get("/api/events/10.5/users")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("event_id must be a positive integer");
+          });
+      });
+      it("status: 404, Not Found", () => {
+        return request(app)
+          .get("/api/events/999/users")
           .expect(404)
           .then(({ body: { msg } }) => {
             expect(msg).toBe("Event Not Found");
