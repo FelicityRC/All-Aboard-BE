@@ -64,7 +64,15 @@ exports.updateUser = (user_id, body) => {
     return Promise.reject({ status: 400, msg: "Bad Request" });
   }
 
-  const validKeys = ["username", "name", "email", "fav_games", "friends"];
+  const validKeys = [
+    "username",
+    "name",
+    "email",
+    "fav_games",
+    "friends",
+    "inc_games",
+    "inc_friends",
+  ];
 
   const keys = Object.keys(body);
 
@@ -74,6 +82,10 @@ exports.updateUser = (user_id, body) => {
     if (validKeys.includes(key)) {
       if (key === "fav_games" || key === "friends") {
         queryString += `${key}='{${body[key]}}', `;
+      } else if (key === "inc_games") {
+        queryString += `fav_games=ARRAY_CAT(fav_games, ARRAY[${body["inc_games"]}]), `;
+      } else if (key === "inc_friends") {
+        queryString += `friends=ARRAY_CAT(friends, ARRAY[${body["inc_friends"]}]), `;
       } else {
         queryString += `${key}='${body[key]}', `;
       }

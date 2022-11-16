@@ -460,6 +460,23 @@ describe("PATCH", () => {
             });
           });
       });
+
+      it("status: 200, allows inc_games and inc_friends properties", () => {
+        return request(app)
+          .patch("/api/users/1")
+          .send({ inc_games: [3], inc_friends: [1, 2] })
+          .expect(200)
+          .then(({ body: { user } }) => {
+            expect(user).toEqual({
+              user_id: 1,
+              username: "BigJ",
+              name: "Joe",
+              email: "joefuller042@gmail.com",
+              fav_games: [3],
+              friends: [1, 2],
+            });
+          });
+      });
     });
 
     describe("Error Handling", () => {
