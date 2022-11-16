@@ -55,23 +55,32 @@ exports.selectUsersByEventId = (event_id) => {
       }
     });
 };
-// exports.selectGamesByEventId = (event_id) => {
-//   const num = Number(event_id);
-//   if (!(Number.isInteger(num) && num > 0)) {
-//     return Promise.reject({
-//       status: 400,
-//       msg: "event_id must be a positive integer",
-//     });
-//   }
+exports.selectGamesByEventId = (event_id) => {
+  const num = Number(event_id);
+  if (!(Number.isInteger(num) && num > 0)) {
+    return Promise.reject({
+      status: 400,
+      msg: "event_id must be a positive integer",
+    });
+  }
 
-//   return db.query(`SELECT * FROM events WHERE event_id=$1`, [event_id])
-//   .then(({ rows: [event] }) => {
-//     let queryString = `SELECT * FROM games WHERE `;
-//     for (const game_id of event.games) {
-//       queryString += `game_id=${}`
-//     }
-//   })
-// };
+  return db
+    .query(`SELECT * FROM events WHERE event_id=$1`, [event_id])
+    .then(({ rows: [event] }) => {
+      if (event) {
+        let queryString = `SELECT * FROM games WHERE `;
+        for (const game_id of event.games) {
+          queryString += `game_id=${game_id} OR `;
+        }
+        queryString = queryString.slice(0, -3);
+        return db.query(queryString).then(({ rows: games }) => {
+          return games;
+        });
+      } else {
+        return Promise.reject({ status: 404, msg: "Event Not Found" });
+      }
+    });
+};
 
 exports.insertEvent = (body) => {
   if (!body) {

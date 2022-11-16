@@ -707,7 +707,7 @@ describe("DELETE", () => {
   });
 });
 
-describe("Error Handling", () => {
+describe("Initial Endpoint Error Handling", () => {
   it("status: 404, Not Found", () => {
     return request(app)
       .get("/api/bananas")
