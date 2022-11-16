@@ -57,7 +57,7 @@ const seed = async (data) => {
       name,
       email,
       location,
-      fav_games,
+      "{" + fav_games + "}",
     ])
   );
 

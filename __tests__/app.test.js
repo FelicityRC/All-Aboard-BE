@@ -51,7 +51,7 @@ describe("GET", () => {
               email: "joefuller042@gmail.com",
               location: "Liverpool",
               friends: [],
-              fav_games: [],
+              fav_games: [1, 2, 3],
             });
           });
       });
@@ -429,7 +429,7 @@ describe("PATCH", () => {
               name: "Joe",
               email: "newemail@email.com",
               location: "Liverpool",
-              fav_games: [],
+              fav_games: [1, 2, 3],
               friends: [],
             });
           });
@@ -446,7 +446,7 @@ describe("PATCH", () => {
               name: "Joe",
               email: "newemail@email.com",
               location: "Liverpool",
-              fav_games: [],
+              fav_games: [1, 2, 3],
               friends: [],
             });
           });
@@ -454,7 +454,7 @@ describe("PATCH", () => {
       it("status: 200, works with arrays", () => {
         return request(app)
           .patch("/api/users/1")
-          .send({ fav_games: [1, 2] })
+          .send({ fav_games: [4, 5] })
           .expect(200)
           .then(({ body: { user } }) => {
             expect(user).toEqual({
@@ -463,7 +463,7 @@ describe("PATCH", () => {
               name: "Joe",
               email: "joefuller042@gmail.com",
               location: "Liverpool",
-              fav_games: [1, 2],
+              fav_games: [4, 5],
               friends: [],
             });
           });
@@ -472,7 +472,7 @@ describe("PATCH", () => {
       it("status: 200, allows inc_games and inc_friends properties", () => {
         return request(app)
           .patch("/api/users/1")
-          .send({ inc_games: [3], inc_friends: [1, 2] })
+          .send({ inc_games: [4], inc_friends: [1, 2] })
           .expect(200)
           .then(({ body: { user } }) => {
             expect(user).toEqual({
@@ -481,7 +481,7 @@ describe("PATCH", () => {
               name: "Joe",
               email: "joefuller042@gmail.com",
               location: "Liverpool",
-              fav_games: [3],
+              fav_games: [1, 2, 3, 4],
               friends: [1, 2],
             });
           });
