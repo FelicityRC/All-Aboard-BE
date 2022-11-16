@@ -423,6 +423,92 @@ describe("PATCH", () => {
       });
     });
   });
+
+  describe("/api/events/:event_id", () => {
+    describe("Functionality", () => {
+      it("status: 200, updates values of a specific event and returns the updated event ", () => {
+        return request(app)
+          .patch("/api/events/2")
+          .send({ start_time: "16:15:00" })
+          .expect(200)
+          .then(({ body: { event } }) => {
+            expect(event).toEqual({
+              event_id: 2,
+              title: "Liverpool MeetUp",
+              description: "The actual, real, real boardgamemeetup",
+              latitude: "53.400002",
+              longitude: "-2.983333",
+              area: "Liverpool",
+              date: "2021-01-18T00:00:00.000Z",
+              start_time: "16:15:00",
+              duration: 120,
+              organiser: 2,
+              guests: null,
+              games: null,
+              visibility: true,
+              willing_to_teach: false,
+            });
+          });
+      });
+
+      it("status: 200, ignores extra keys on body and returns updated event ", () => {
+        return request(app)
+          .patch("/api/events/2")
+          .send({ visibility: false, bannedUsers: "Bob Smith" })
+          .expect(200)
+          .then(({ body: { event } }) => {
+            expect(event).toEqual({
+              event_id: 2,
+              title: "Liverpool MeetUp",
+              description: "The actual, real, real boardgamemeetup",
+              latitude: "53.400002",
+              longitude: "-2.983333",
+              area: "Liverpool",
+              date: "2021-01-18T00:00:00.000Z",
+              start_time: "14:30:00",
+              duration: 120,
+              organiser: 2,
+              guests: null,
+              games: null,
+              visibility: false,
+              willing_to_teach: false,
+            });
+          });
+      });
+    });
+
+    describe("Error Handling", () => {
+      it("status: 400, Bad Request when no body", () => {
+        return request(app)
+          .patch("/api/events/1")
+          .send({})
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Bad Request");
+          });
+      });
+
+      it("status: 400, invalid event_id", () => {
+        return request(app)
+          .patch("/api/events/badger")
+          .send({ start_time: "15:30:00" })
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("event_id must be a positive integer");
+          });
+      });
+
+      it("status: 404, event_id not found", () => {
+        return request(app)
+          .patch("/api/events/1111")
+          .send({ start_time: "15:30:00" })
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Event Not Found");
+          });
+      });
+    });
+  });
 });
 
 describe("Error Handling", () => {

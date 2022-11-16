@@ -4,9 +4,10 @@ const {
   getEvents,
   getEventByEventId,
   postEvent,
+  patchEvent,
 } = require("../controllers/events.controllers");
 
 eventRouter.route("/").get(getEvents).post(postEvent);
-eventRouter.get("/:event_id", getEventByEventId);
+eventRouter.route("/:event_id").get(getEventByEventId).patch(patchEvent);
 
 module.exports = eventRouter;
