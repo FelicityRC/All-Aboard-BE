@@ -30,6 +30,7 @@ exports.insertEvent = (body) => {
   if (!body) {
     return Promise.reject({ status: 400, msg: "Bad Request" });
   }
+
   if (
     !(
       body.title &&

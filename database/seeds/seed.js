@@ -28,7 +28,7 @@ const seed = async (data) => {
             latitude NUMERIC NOT NULL,
             longitude NUMERIC NOT NULL,
             area VARCHAR,
-            date DATE NOT NULL,
+            date DATE DEFAULT NOW(),
             start_time TIME NOT NULL,
             duration INT,
             organiser INT NOT NULL REFERENCES users(user_id),
