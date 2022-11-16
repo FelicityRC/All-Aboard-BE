@@ -7,7 +7,9 @@ exports.selectEvents = () => {
 };
 
 exports.selectEventByEventId = (event_id) => {
+
   // below checks that the event_id is a positive integer
+
   const num = Number(event_id);
   if (!(Number.isInteger(num) && num > 0)) {
     return Promise.reject({
@@ -89,4 +91,56 @@ exports.insertEvent = (body) => {
     .then(({ rows: [event] }) => {
       return event;
     });
+};
+
+exports.updateEvent = (event_id, body) => {
+  // this checks the user_id is a positive integer
+  const num = Number(event_id);
+  if (!(Number.isInteger(num) && num > 0)) {
+    return Promise.reject({
+      status: 400,
+      msg: "event_id must be a positive integer",
+    });
+  }
+
+  if (!body || Object.keys(body).length === 0) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
+
+  const validKeys = [
+    "title",
+    "description",
+    "longitude",
+    "latitude",
+    "area",
+    "date",
+    "start_time",
+    "duration",
+    "organiser",
+    "guest",
+    "games",
+    "visibility",
+    "willing_to_teach",
+  ];
+
+  const keys = Object.keys(body);
+
+  let queryString = `UPDATE events SET `;
+
+  for (const key of keys) {
+    if (validKeys.includes(key)) {
+      queryString += `${key}='${body[key]}', `;
+    }
+  }
+
+  queryString = queryString.slice(0, -2);
+  queryString += ` WHERE event_id=${event_id} RETURNING *`;
+
+  return db.query(queryString).then(({ rows: [event] }) => {
+    if (event) {
+      return event;
+    } else {
+      return Promise.reject({ status: 404, msg: "Event Not Found" });
+    }
+  });
 };

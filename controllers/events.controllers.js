@@ -2,6 +2,7 @@ const {
   selectEvents,
   selectEventByEventId,
   insertEvent,
+  updateEvent,
   selectUsersByEventId,
 } = require("../models/events.models");
 
@@ -30,6 +31,14 @@ exports.postEvent = (req, res, next) => {
     .catch((err) => next(err));
 };
 
+exports.patchEvent = (req, res, next) => {
+  const event_id = req.params.event_id;
+  const body = req.body;
+
+  updateEvent(event_id, body)
+    .then((event) => {
+      res.status(200).send({ event });
+      
 exports.getUsersByEventId = (req, res, next) => {
   const event_id = req.params.event_id;
 
