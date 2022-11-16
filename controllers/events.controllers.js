@@ -1,6 +1,7 @@
 const {
   selectEvents,
   selectEventByEventId,
+  insertEvent,
   selectUsersByEventId,
 } = require("../models/events.models");
 
@@ -17,9 +18,16 @@ exports.getEventByEventId = (req, res, next) => {
     .then((event) => {
       res.status(200).send({ event });
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch((err) => next(err));
+};
+
+exports.postEvent = (req, res, next) => {
+  const body = req.body;
+  insertEvent(body)
+    .then((event) => {
+      res.status(201).send({ event });
+    })
+    .catch((err) => next(err));
 };
 
 exports.getUsersByEventId = (req, res, next) => {

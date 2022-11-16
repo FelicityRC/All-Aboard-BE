@@ -54,3 +54,38 @@ exports.selectUsersByEventId = (event_id) => {
       }
     });
 };
+exports.insertEvent = (body) => {
+  if (!body) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
+  if (
+    !(
+      body.title &&
+      body.latitude &&
+      body.longitude &&
+      body.area &&
+      body.date &&
+      body.start_time &&
+      body.organiser
+    )
+  ) {
+    return Promise.reject({ status: 400, msg: "Missing Required Fields" });
+  }
+
+  return db
+    .query(
+      `INSERT INTO events (title, latitude, longitude, area, date, start_time, organiser) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      [
+        body.title,
+        body.latitude,
+        body.longitude,
+        body.area,
+        body.date,
+        body.start_time,
+        body.organiser,
+      ]
+    )
+    .then(({ rows: [event] }) => {
+      return event;
+    });
+};

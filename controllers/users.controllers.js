@@ -18,9 +18,7 @@ exports.getUserByUserId = (req, res, next) => {
     .then((user) => {
       res.status(200).send({ user });
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch((err) => next(err));
 };
 
 exports.postUser = (req, res, next) => {
