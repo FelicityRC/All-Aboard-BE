@@ -51,12 +51,13 @@ const seed = async (data) => {
         );`);
 
   const insertUsersQueryStr = format(
-    "INSERT INTO users (username, name, email, location) VALUES %L RETURNING *;",
-    userData.map(({ username, name, email, location }) => [
+    "INSERT INTO users (username, name, email, location, fav_games) VALUES %L RETURNING *;",
+    userData.map(({ username, name, email, location, fav_games }) => [
       username,
       name,
       email,
       location,
+      fav_games,
     ])
   );
 
