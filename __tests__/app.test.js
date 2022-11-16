@@ -91,6 +91,65 @@ describe("GET", () => {
       });
     });
   });
+  describe("/api/users/:user_id/games", () => {
+    describe("Functionality", () => {
+      it("status: 200, responds with the specified users fav_games objects", () => {
+        return request(app)
+          .get("/api/users/1/games")
+          .expect(200)
+          .then(({ body: { games } }) => {
+            expect(games).toBeInstanceOf(Array);
+            games.forEach((game) => {
+              expect(game).toEqual(
+                expect.objectContaining({
+                  name: expect.any(String),
+                  description: expect.any(String),
+                  image_url: expect.any(String),
+                  min_players: expect.any(Number),
+                  max_players: expect.any(Number),
+                  // some rules_urls are null
+                  //   rules_url: expect.any(String),
+                })
+              );
+            });
+          });
+      });
+    });
+    describe("Error Handling", () => {
+      it("status: 400, Bad Request", () => {
+        return request(app)
+          .get("/api/users/words/games")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("user_id must be a positive integer");
+          });
+      });
+      it("status: 400, Bad Request", () => {
+        return request(app)
+          .get("/api/users/-10/games")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("user_id must be a positive integer");
+          });
+      });
+      it("status: 400, Bad Request", () => {
+        return request(app)
+          .get("/api/users/12.5/games")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("user_id must be a positive integer");
+          });
+      });
+      it("status: 404, Not Found", () => {
+        return request(app)
+          .get("/api/users/999/games")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("User Not Found");
+          });
+      });
+    });
+  });
   describe("/api/games", () => {
     describe("Functionality", () => {
       it("status: 200, responds with an array of games", () => {

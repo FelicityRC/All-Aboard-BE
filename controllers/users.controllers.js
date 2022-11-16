@@ -3,6 +3,7 @@ const {
   selectUserByUserId,
   insertUser,
   updateUser,
+  selectGamesByUserId,
 } = require("../models/users.models");
 
 exports.getUsers = (req, res, next) => {
@@ -37,6 +38,16 @@ exports.patchUser = (req, res, next) => {
   updateUser(user_id, body)
     .then((user) => {
       res.status(200).send({ user });
+    })
+    .catch((err) => next(err));
+};
+
+exports.getGamesByUserId = (req, res, next) => {
+  const user_id = req.params.user_id;
+
+  selectGamesByUserId(user_id)
+    .then((games) => {
+      res.status(200).send({ games });
     })
     .catch((err) => next(err));
 };

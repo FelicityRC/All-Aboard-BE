@@ -104,3 +104,31 @@ exports.updateUser = (user_id, body) => {
     }
   });
 };
+
+exports.selectGamesByUserId = (user_id) => {
+  // below checks that the user_id is a positive integer
+  const num = Number(user_id);
+  if (!(Number.isInteger(num) && num > 0)) {
+    return Promise.reject({
+      status: 400,
+      msg: "user_id must be a positive integer",
+    });
+  }
+
+  return db
+    .query(`SELECT * FROM users WHERE user_id=$1`, [user_id])
+    .then(({ rows: [user] }) => {
+      if (user) {
+        let queryString = `SELECT * FROM games WHERE `;
+        for (const game_id of user.fav_games) {
+          queryString += `game_id=${game_id} OR `;
+        }
+        queryString = queryString.slice(0, -3);
+        return db.query(queryString).then(({ rows: games }) => {
+          return games;
+        });
+      } else {
+        return Promise.reject({ status: 404, msg: "User Not Found" });
+      }
+    });
+};
