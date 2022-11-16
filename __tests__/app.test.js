@@ -417,6 +417,59 @@ describe("GET", () => {
       });
     });
   });
+  describe("/api/groups/:group_id", () => {
+    describe("Functionality", () => {
+      it("status: 200, responds with the specified group object", () => {
+        return request(app)
+          .get("/api/groups/1")
+          .expect(200)
+          .then(({ body: { group } }) => {
+            expect(group).toBeInstanceOf(Object);
+            expect(group).toEqual({
+              group_id: 1,
+              name: "catbus",
+              organiser: 1,
+              users: [1, 2],
+              events: [2],
+            });
+          });
+      });
+    });
+    describe("Error Handling", () => {
+      it("status: 400, Bad Request", () => {
+        return request(app)
+          .get("/api/groups/hello")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("group_id must be a positive integer");
+          });
+      });
+      it("status: 400, Bad Request", () => {
+        return request(app)
+          .get("/api/groups/-50")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("group_id must be a positive integer");
+          });
+      });
+      it("status: 400, Bad Request", () => {
+        return request(app)
+          .get("/api/groups/10.5")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("group_id must be a positive integer");
+          });
+      });
+      it("status: 404, Not Found", () => {
+        return request(app)
+          .get("/api/groups/999")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Group Not Found");
+          });
+      });
+    });
+  });
 });
 
 describe("POST", () => {
