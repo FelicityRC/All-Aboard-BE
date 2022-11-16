@@ -105,8 +105,6 @@ const seed = async (data) => {
     )
   );
 
-  console.log(insertEventsQueryStr);
-
   await db.query(insertEventsQueryStr).then((result) => result.rows);
 };
 
