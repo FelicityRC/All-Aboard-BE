@@ -111,6 +111,9 @@ exports.insertEvent = (body) => {
   let queryString = `INSERT INTO events (`;
   for (const key of keys) {
     if (validKeys.includes(key)) {
+      if (key === "guests" || key === "games") {
+        queryString += `${key}='{${body[key]}}', `;
+      }
       queryString += key + ", ";
     }
   }
@@ -121,7 +124,6 @@ exports.insertEvent = (body) => {
   }
   queryString = queryString.slice(0, -2);
   queryString += `) RETURNING *;`;
-  console.log(queryString);
 
   return db.query(queryString).then(({ rows: [event] }) => {
     return event;
