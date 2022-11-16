@@ -7,7 +7,6 @@ exports.selectEvents = () => {
 };
 
 exports.selectEventByEventId = (event_id) => {
-
   // below checks that the event_id is a positive integer
 
   const num = Number(event_id);
@@ -143,4 +142,23 @@ exports.updateEvent = (event_id, body) => {
       return Promise.reject({ status: 404, msg: "Event Not Found" });
     }
   });
+};
+
+exports.removeEvent = (event_id) => {
+  const num = Number(event_id);
+  if (!(Number.isInteger(num) && num > 0)) {
+    return Promise.reject({
+      status: 400,
+      msg: "event_id must be a positive integer",
+    });
+  }
+
+  return db
+    .query(`DELETE FROM events WHERE event_id = $1`, [event_id])
+    .then((res) => {
+      if (res.rowCount === 0) {
+        return Promise.reject({ status: 404, msg: "Event Not Found" });
+      }
+      return;
+    });
 };

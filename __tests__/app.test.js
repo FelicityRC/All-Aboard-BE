@@ -566,6 +566,34 @@ describe("PATCH", () => {
   });
 });
 
+describe("DELETE", () => {
+  describe("/api/events/:event_id", () => {
+    describe("Functionality", () => {
+      it("status 204, event deleted", () => {
+        return request(app).delete("/api/events/1").expect(204);
+      });
+    });
+    describe("Error Handling", () => {
+      it("status: 404, event_id not found", () => {
+        return request(app)
+          .delete("/api/events/565656")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Event Not Found");
+          });
+      });
+      it("status: 400, invalid event_id", () => {
+        return request(app)
+          .delete("/api/events/sillySausages")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("event_id must be a positive integer");
+          });
+      });
+    });
+  });
+});
+
 describe("Error Handling", () => {
   it("status: 404, Not Found", () => {
     return request(app)
