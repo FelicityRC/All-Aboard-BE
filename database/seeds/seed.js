@@ -32,10 +32,10 @@ const seed = async (data) => {
             start_time TIME NOT NULL,
             duration INT,
             organiser INT NOT NULL REFERENCES users(user_id),
-            guests INT [],
-            games INT [],
             visibility BOOLEAN DEFAULT true,
-            willing_to_teach BOOLEAN DEFAULT false
+            willing_to_teach BOOLEAN DEFAULT false,
+            guests INT[],
+            games INT[]
         );`);
 
   await db.query(`
@@ -73,7 +73,7 @@ const seed = async (data) => {
   await db.query(insertGamesQueryStr).then((result) => result.rows);
 
   const insertEventsQueryStr = format(
-    "INSERT INTO events (title, description, latitude, longitude, area, date, start_time, duration, organiser, visibility, willing_to_teach) VALUES %L RETURNING *;",
+    "INSERT INTO events (title, description, latitude, longitude, area, date, start_time, duration, organiser, visibility, willing_to_teach, guests) VALUES %L RETURNING *;",
     eventData.map(
       ({
         title,
@@ -87,6 +87,7 @@ const seed = async (data) => {
         organiser,
         visibility,
         willing_to_teach,
+        guests,
       }) => [
         title,
         description,
@@ -99,9 +100,12 @@ const seed = async (data) => {
         organiser,
         visibility,
         willing_to_teach,
+        "{" + guests + "}",
       ]
     )
   );
+
+  console.log(insertEventsQueryStr);
 
   await db.query(insertEventsQueryStr).then((result) => result.rows);
 };
