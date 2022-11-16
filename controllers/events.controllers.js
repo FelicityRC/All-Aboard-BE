@@ -53,6 +53,16 @@ exports.getUsersByEventId = (req, res, next) => {
     .catch((err) => next(err));
 };
 
+exports.getGamesByEventId = (req, res, next) => {
+  const event_id = req.params.event_id;
+
+  selectGamesByEventId(event_id)
+    .then((events) => {
+      res.status(200).send({ events });
+    })
+    .catch((err) => next(err));
+};
+
 exports.deleteEvent = (req, res, next) => {
   const event_id = req.params.event_id;
   removeEvent(event_id)

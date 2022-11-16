@@ -4,6 +4,7 @@ const {
   getEvents,
   getEventByEventId,
   getUsersByEventId,
+  getGamesByEventId,
   postEvent,
   patchEvent,
   deleteEvent,
@@ -15,6 +16,8 @@ eventRouter
   .get(getEventByEventId)
   .patch(patchEvent)
   .delete(deleteEvent);
+
 eventRouter.get("/:event_id/users", getUsersByEventId);
+eventRouter.get("/:event_id/games", getGamesByEventId);
 
 module.exports = eventRouter;
