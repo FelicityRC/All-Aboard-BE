@@ -394,6 +394,29 @@ describe("GET", () => {
       });
     });
   });
+  describe("/api/groups", () => {
+    describe("Functionality", () => {
+      it("status: 200, responds with an array of groups", () => {
+        return request(app)
+          .get("/api/groups")
+          .expect(200)
+          .then(({ body: { groups } }) => {
+            expect(groups).toBeInstanceOf(Array);
+            expect(groups).toHaveLength(2);
+            groups.forEach((group) => {
+              expect(group).toEqual(
+                expect.objectContaining({
+                  name: expect.any(String),
+                  organiser: expect.any(Number),
+                  users: expect.any(Array),
+                  events: expect.any(Array),
+                })
+              );
+            });
+          });
+      });
+    });
+  });
 });
 
 describe("POST", () => {
