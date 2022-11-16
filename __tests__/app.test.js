@@ -13,6 +13,18 @@ beforeEach(() => {
 });
 
 describe("GET", () => {
+  describe("/api", () => {
+    describe("Functionality", () => {
+      it("status: 200, returns JSON describing all endpoints of the api", () => {
+        return request(app)
+          .get("/api")
+          .expect(200)
+          .then(({ body: { api } }) => {
+            expect(api).toBeInstanceOf(Object);
+          });
+      });
+    });
+  });
   describe("/api/users", () => {
     describe("Functionality", () => {
       it("status: 200, responds with an array of users", () => {
