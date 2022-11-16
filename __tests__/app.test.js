@@ -305,6 +305,79 @@ describe("POST", () => {
     });
   });
 
+});
+describe("PATCH", () => {
+  describe("/api/users/:user_id", () => {
+    describe("Functionality", () => {
+      it("status: 200, updates the values of a specified user and returns updated user", () => {
+        return request(app)
+          .patch("/api/users/1")
+          .send({ email: "newemail@email.com" })
+          .expect(200)
+          .then(({ body: { user } }) => {
+            expect(user).toEqual({
+              user_id: 1,
+              username: "BigJ",
+              name: "Joe",
+              email: "newemail@email.com",
+              fav_games: null,
+              friends: null,
+            });
+          });
+      });
+      it("status: 200, ignores extra keys on body", () => {
+        return request(app)
+          .patch("/api/users/1")
+          .send({ email: "newemail@email.com", something_else: "aaaahhh" })
+          .expect(200)
+          .then(({ body: { user } }) => {
+            expect(user).toEqual({
+              user_id: 1,
+              username: "BigJ",
+              name: "Joe",
+              email: "newemail@email.com",
+              fav_games: null,
+              friends: null,
+            });
+          });
+      });
+    });
+
+    describe("Error Handling", () => {
+      it("status: 400, Bad Request when no body", () => {
+        return request(app)
+          .patch("/api/users/1")
+          .send({})
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Bad Request");
+          });
+      });
+
+      it("status: 400, invalid user_id", () => {
+        return request(app)
+          .patch("/api/users/cat")
+          .send({ email: "newemail@email.com" })
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("user_id must be a positive integer");
+          });
+      });
+
+      it("status: 404, user_id not found", () => {
+        return request(app)
+          .patch("/api/users/99999")
+          .send({ email: "newemail@email.com" })
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("User Not Found");
+          });
+      });
+    });
+  });
+});
+
+
   describe("/api/events", () => {
     describe("Functionality", () => {
       it("status: 201, adds a new event and returns it", () => {
