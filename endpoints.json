@@ -1,0 +1,229 @@
+{
+  "GET /api": {
+    "description": "returns a json representation of all the available endpoints of the api"
+  },
+  "GET /api/users": {
+    "description": "returns an array of all users",
+    "exampleResponse": {
+      "users": [
+        {
+          "user_id": 1,
+          "username": "BigJ",
+          "name": "Joe",
+          "email": "myfakeemail@gmail.com",
+          "location": "Liverpool",
+          "friends": [],
+          "fav_games": [1, 2, 3]
+        }
+      ]
+    }
+  },
+  "GET /api/users/:user_id": {
+    "description": "returns the specified user object",
+    "exampleResponse": {
+      "user": {
+        "user_id": 1,
+        "username": "BigJ",
+        "name": "Joe",
+        "email": "joefuller042@gmail.com",
+        "location": "Liverpool",
+        "friends": [],
+        "fav_games": [1, 2, 3]
+      }
+    }
+  },
+  "GET /api/users/:user_id/games": {
+    "description": "returns an array of the specified user's fav_games",
+    "exampleResponse": {
+      "games": [
+        {
+          "game_id": 1,
+          "name": "root",
+          "description": " Find adventure in this marvelous asymmetric game. Root provides limitless replay value as you and your friends explore the unique factions all wanting to rule a fantastic forest kingdom. Play as the Marquise de Cat and dominate the woods, extracting its riches and policing its inhabitants, as the Woodland Alliance, gathering supporters and coordinate revolts against the ruling regime, the Eyrie Dynasties, regaining control of the woods while keeping your squabbling court at bay, or as the Vagabond, seeking fame and fortune as you forge alliances and rivalries with the other players. Each faction has its own play style and paths to victory, providing an immersive game experience you will want to play again and again. ",
+          "image_url": "https://s3-us-west-1.amazonaws.com/5cc.images/games/uploaded/1540147295104",
+          "min_players": 2,
+          "max_players": 4,
+          "rules_url": "https://drive.google.com/drive/folders/1i9-iCUDzfGMs7HjFHhahwMS6efvvfX5w"
+        }
+      ]
+    }
+  },
+  "GET /api/games": {
+    "description": "returns an array of all games",
+    "exampleResponse": {
+      "games": [
+        {
+          "game_id": 1,
+          "name": "root",
+          "description": " Find adventure in this marvelous asymmetric game. Root provides limitless replay value as you and your friends explore the unique factions all wanting to rule a fantastic forest kingdom. Play as the Marquise de Cat and dominate the woods, extracting its riches and policing its inhabitants, as the Woodland Alliance, gathering supporters and coordinate revolts against the ruling regime, the Eyrie Dynasties, regaining control of the woods while keeping your squabbling court at bay, or as the Vagabond, seeking fame and fortune as you forge alliances and rivalries with the other players. Each faction has its own play style and paths to victory, providing an immersive game experience you will want to play again and again. ",
+          "image_url": "https://s3-us-west-1.amazonaws.com/5cc.images/games/uploaded/1540147295104",
+          "min_players": 2,
+          "max_players": 4,
+          "rules_url": "https://drive.google.com/drive/folders/1i9-iCUDzfGMs7HjFHhahwMS6efvvfX5w"
+        }
+      ]
+    }
+  },
+  "GET /api/games/:game_id": {
+    "description": "returns the specified game object",
+    "exampleResponse": {
+      "game": {
+        "game_id": 25,
+        "name": "santorini",
+        "description": " \r\n Welcome to the world of   Santorini  , a fantastic reimagining of the classic abstract game from 2004. Players are given a sandbox in which to play as gods, moving their workers around the board to build up a beautiful, multi-tiered city. Do you have what it takes to outsmart your opponents? Find out, in  Santorini ! \r\n \r\n \r\n   Santorini   is a re-imagining of the purely abstract 2004 edition. Since its original inception over 30 years ago, Santorini has been continually developed, enhanced and refined by designer Gordon Hamilton. \r\n Santorini is an accessible strategy game, simple enough for an elementary school classroom while aiming to provide gameplay depth and content for hardcore gamers to explore, The rules are simple. Each turn consists of 2 steps: \r\n  1. Move  - move one of your builders into a neighboring space. You may move your Builder Pawn on the same level, step-up one level, or step down any number of levels. \r\n  2. Build  - Then construct a building level adjacent to the builder you moved. When building on top of the third level, place a dome instead, removing that space from play. \r\n  Winning the game  - If either of your builders reaches the third level, you win. \r\n  Variable player powers  - Santorini features variable player powers layered over an otherwise abstract game, with 40 thematic god and hero powers that fundamentally change the way the game is played. \r\n \r\n \r\n   Turns in  Santorini  are made up of two simple step: Move and Build. Move around the board and build a building in a spot adjacent to one of your workers. The first player to move their worker from a second level building to a third level building wins the game! Though, there are a few things that add a wrinkle to the basic formula.  Invoke the Power of the gods! Each player will have access to a god power which lets them do things a little differently than normal. Be it changing the rules for how you can build or move, changing how you interact with other players, or providing you with an alternate victory condition, the 30 different god powers are sure to make every game of  Santorini  different and exciting! \r\n ",
+        "image_url": "https://s3-us-west-1.amazonaws.com/5cc.images/games/uploaded/1577065005762",
+        "min_players": 2,
+        "max_players": 4,
+        "rules_url": "http://files.roxley.com/Santorini-Rulebook-Web-2016.08.14.pdf"
+      }
+    }
+  },
+  "GET /api/events": {
+    "description": "returns an array of all events",
+    "exampleResponse": {
+      "events": [
+        {
+          "event_id": 1,
+          "title": "Manchester MeetUp",
+          "description": "The best meetup in town",
+          "latitude": "53.483959",
+          "longitude": "-2.244644",
+          "area": "Manchester",
+          "date": "2021-01-18T00:00:00.000Z",
+          "start_time": "14:30:00",
+          "duration": 120,
+          "organiser": 1,
+          "visibility": true,
+          "willing_to_teach": true,
+          "guests": [1, 2],
+          "games": [4, 50]
+        }
+      ]
+    }
+  },
+  "GET /api/events/:event_id": {
+    "description": "returns the specified event object",
+    "exampleResponse": {
+      "event": {
+        "event_id": 2,
+        "title": "Liverpool MeetUp",
+        "description": "It's a meetup",
+        "latitude": "53.400002",
+        "longitude": "-2.983333",
+        "area": "Liverpool",
+        "date": "2021-01-18T00:00:00.000Z",
+        "start_time": "14:30:00",
+        "duration": 120,
+        "organiser": 2,
+        "visibility": true,
+        "willing_to_teach": false,
+        "guests": [1, 2],
+        "games": [100]
+      }
+    }
+  },
+  "GET /api/events/:event_id/users": {
+    "description": "returns an array of all the users attending an event",
+    "exampleResponse": {
+      "users": [
+        {
+          "user_id": 1,
+          "username": "BigJ",
+          "name": "Joe",
+          "email": "joefuller042@gmail.com",
+          "location": "Liverpool",
+          "friends": [],
+          "fav_games": [1, 2, 3]
+        }
+      ]
+    }
+  },
+  "POST /api/users": {
+    "description": "posts a new user and returns an object containing that user",
+    "requiredFields": {
+      "username": "string",
+      "email": "string"
+    },
+    "examplePost": {
+      "username": "JamesyBoy",
+      "name": "James",
+      "email": "myfakeemail@gmail.com",
+      "location": "Slough"
+    },
+    "exampleResponse": {
+      "user_id": 6,
+      "username": "JamesyBoy",
+      "name": "James",
+      "email": "myfakeemail@gmail.com",
+      "location": "Slough",
+      "friends": [],
+      "fav_games": []
+    }
+  },
+  "POST /api/events": {
+    "description": "posts a new event and returns an object containing that event",
+    "requiredFields": {
+      "title": "string",
+      "latitude": "number",
+      "longitude": "number",
+      "start_time": "TIME e.g.'14:30:00'",
+      "organiser": "INT references users(user_id)"
+    },
+    "examplePost": {
+      "title": "Be There or Be Square",
+      "longitude": "-2.983333",
+      "latitude": "53.400002",
+      "area": "Didsbury",
+      "date": "2021-01-18T00:00:00.000Z",
+      "start_time": "12:00:00",
+      "organiser": 1
+    },
+    "exampleResponse": {
+      "event_id": 3,
+      "title": "Be There or Be Square",
+      "description": null,
+      "longitude": "-2.983333",
+      "latitude": "53.400002",
+      "area": "Didsbury",
+      "date": "2021-01-18T00:00:00.000Z",
+      "start_time": "12:00:00",
+      "duration": null,
+      "organiser": 1,
+      "guests": [],
+      "games": [],
+      "visibility": true,
+      "willing_to_teach": false
+    }
+  },
+  "PATCH /api/users/:user_id": {
+    "description": "updates the specified user with the new values and returns the updated user object",
+    "examplePatch": {
+      "name": "Frederik",
+      "email": "newemail@email.com",
+      "friends": [12, 30]
+    },
+    "exampleResponse": {
+      "user_id": 1,
+      "username": "BigJ",
+      "name": "Frederik",
+      "email": "newemail@email.com",
+      "location": "Liverpool",
+      "fav_games": [1, 2, 3],
+      "friends": [12, 30]
+    },
+    "also": "specific keys inc_games and inc_friends will add to the respective arrays instead of replacing them. This example carries on from the above",
+    "secondaryExamplePatch": {
+      "inc_games": [6, 10],
+      "inc_friends": [1, 4]
+    },
+    "secondaryExampleResponse": {
+      "user_id": 1,
+      "username": "BigJ",
+      "name": "Frederik",
+      "email": "newemail@email.com",
+      "location": "Liverpool",
+      "fav_games": [1, 2, 3, 6, 10],
+      "friends": [12, 30, 1, 4]
+    }
+  }
+}
