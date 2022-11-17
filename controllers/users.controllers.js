@@ -4,6 +4,7 @@ const {
   insertUser,
   updateUser,
   selectGamesByUserId,
+  selectEventsByUserId,
 } = require("../models/users.models");
 
 exports.getUsers = (req, res, next) => {
@@ -48,6 +49,16 @@ exports.getGamesByUserId = (req, res, next) => {
   selectGamesByUserId(user_id)
     .then((games) => {
       res.status(200).send({ games });
+    })
+    .catch((err) => next(err));
+};
+
+exports.getEventsByUserId = (req, res, next) => {
+  const user_id = req.params.user_id;
+
+  selectEventsByUserId(user_id)
+    .then((events) => {
+      res.status(200).send({ events });
     })
     .catch((err) => next(err));
 };

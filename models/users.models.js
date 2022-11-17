@@ -138,3 +138,20 @@ exports.selectGamesByUserId = (user_id) => {
       }
     });
 };
+
+exports.selectEventsByUserId = (user_id) => {
+  // below checks that the user_id is a positive integer
+  const num = Number(user_id);
+  if (!(Number.isInteger(num) && num > 0)) {
+    return Promise.reject({
+      status: 400,
+      msg: "user_id must be a positive integer",
+    });
+  }
+
+  return db
+    .query(`SELECT * FROM events WHERE $1=ANY(guests)`, [user_id])
+    .then(({ rows: events }) => {
+      return events;
+    });
+};
