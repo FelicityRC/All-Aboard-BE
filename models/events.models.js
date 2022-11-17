@@ -1,3 +1,4 @@
+const { query } = require("../database/connection");
 const db = require("../database/connection");
 
 exports.selectEvents = () => {

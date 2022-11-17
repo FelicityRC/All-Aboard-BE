@@ -4,6 +4,7 @@ const {
   insertEvent,
   updateEvent,
   selectUsersByEventId,
+  selectGamesByEventId,
   removeEvent,
 } = require("../models/events.models");
 
@@ -57,8 +58,8 @@ exports.getGamesByEventId = (req, res, next) => {
   const event_id = req.params.event_id;
 
   selectGamesByEventId(event_id)
-    .then((events) => {
-      res.status(200).send({ events });
+    .then((games) => {
+      res.status(200).send({ games });
     })
     .catch((err) => next(err));
 };
