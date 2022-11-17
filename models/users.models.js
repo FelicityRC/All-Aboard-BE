@@ -73,6 +73,8 @@ exports.updateUser = (user_id, body) => {
     "friends",
     "inc_games",
     "inc_friends",
+    "out_games",
+    "out_friends",
   ];
 
   const keys = Object.keys(body);
@@ -87,6 +89,10 @@ exports.updateUser = (user_id, body) => {
         queryString += `fav_games=ARRAY_CAT(fav_games, ARRAY[${body["inc_games"]}]), `;
       } else if (key === "inc_friends") {
         queryString += `friends=ARRAY_CAT(friends, ARRAY[${body["inc_friends"]}]), `;
+      } else if (key === "out_games") {
+        queryString += `fav_games=(SELECT ARRAY(SELECT UNNEST(fav_games) EXCEPT SELECT UNNEST('{${body["out_games"]}}'::int[]))), `;
+      } else if (key === "out_friends") {
+        queryString += `friends=(SELECT ARRAY(SELECT UNNEST(friends) EXCEPT SELECT UNNEST('{${body["out_friends"]}}'::int[]))), `;
       } else {
         queryString += `${key}='${body[key]}', `;
       }
