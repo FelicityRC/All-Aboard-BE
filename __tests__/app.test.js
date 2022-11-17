@@ -532,326 +532,382 @@ describe("GET", () => {
       });
     });
   });
+  describe("/api/groups/:group_id/users", () => {
+    describe("Functionality", () => {
+      it("status: 200, responds with an array of users that are members of the specified group", () => {
+        return request(app)
+          .get("/api/groups/2/users")
+          .expect(200)
+          .then(({ body: { users } }) => {
+            expect(users).toBeInstanceOf(Array);
+            users.forEach((user) => {
+              expect(user).toEqual(
+                expect.objectContaining({
+                  username: expect.any(String),
+                  name: expect.any(String),
+                  email: expect.any(String),
+                  location: expect.any(String),
+                })
+              );
+            });
+          });
+      });
+    });
+    describe("Error Handling", () => {
+      it("status: 400, Bad Request", () => {
+        return request(app)
+          .get("/api/groups/hello/users")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("group_id must be a positive integer");
+          });
+      });
+      it("status: 400, Bad Request", () => {
+        return request(app)
+          .get("/api/groups/-50/users")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("group_id must be a positive integer");
+          });
+      });
+      it("status: 400, Bad Request", () => {
+        return request(app)
+          .get("/api/groups/10.5/users")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("group_id must be a positive integer");
+          });
+      });
+      it("status: 404, Not Found", () => {
+        return request(app)
+          .get("/api/groups/999/users")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Group Not Found");
+          });
+      });
+    });
+  });
+});
 
-  describe("POST", () => {
-    describe("/api/users", () => {
-      describe("Functionality", () => {
-        it("status: 201, adds a new user and returns it", () => {
-          return request(app)
-            .post("/api/users")
-            .send({
+describe("POST", () => {
+  describe("/api/users", () => {
+    describe("Functionality", () => {
+      it("status: 201, adds a new user and returns it", () => {
+        return request(app)
+          .post("/api/users")
+          .send({
+            username: "Facility",
+            name: "Felicity",
+            email: "fbomb@hotmail.co.uk",
+            location: "Manchester",
+          })
+          .expect(201)
+          .then(({ body: { user } }) => {
+            expect(user).toEqual({
+              user_id: 3,
               username: "Facility",
               name: "Felicity",
               email: "fbomb@hotmail.co.uk",
               location: "Manchester",
-            })
-            .expect(201)
-            .then(({ body: { user } }) => {
-              expect(user).toEqual({
-                user_id: 3,
-                username: "Facility",
-                name: "Felicity",
-                email: "fbomb@hotmail.co.uk",
-                location: "Manchester",
-                fav_games: [],
-                friends: [],
-              });
+              fav_games: [],
+              friends: [],
             });
-        });
-      });
-
-      describe("Error Handling", () => {
-        it("status: 400, missing required fields on body", () => {
-          return request(app)
-            .post("/api/users")
-            .send({})
-            .expect(400)
-            .then(({ body: { msg } }) => {
-              expect(msg).toBe("Missing Required Fields");
-            });
-        });
+          });
       });
     });
-    describe("/api/events", () => {
-      describe("Functionality", () => {
-        it("status: 201, adds a new event and returns it", () => {
-          return request(app)
-            .post("/api/events")
-            .send({
+
+    describe("Error Handling", () => {
+      it("status: 400, missing required fields on body", () => {
+        return request(app)
+          .post("/api/users")
+          .send({})
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Missing Required Fields");
+          });
+      });
+    });
+  });
+  describe("/api/events", () => {
+    describe("Functionality", () => {
+      it("status: 201, adds a new event and returns it", () => {
+        return request(app)
+          .post("/api/events")
+          .send({
+            title: "Be There or Be Square",
+            longitude: "-2.983333",
+            latitude: "53.400002",
+            area: "Didsbury",
+            date: "2021-01-18T00:00:00.000Z",
+            start_time: "12:00:00",
+            organiser: 1,
+          })
+          .expect(201)
+          .then(({ body: { event } }) => {
+            expect(event).toEqual({
+              event_id: 3,
               title: "Be There or Be Square",
+              description: null,
               longitude: "-2.983333",
               latitude: "53.400002",
               area: "Didsbury",
               date: "2021-01-18T00:00:00.000Z",
               start_time: "12:00:00",
+              duration: null,
               organiser: 1,
-            })
-            .expect(201)
-            .then(({ body: { event } }) => {
-              expect(event).toEqual({
-                event_id: 3,
-                title: "Be There or Be Square",
-                description: null,
-                longitude: "-2.983333",
-                latitude: "53.400002",
-                area: "Didsbury",
-                date: "2021-01-18T00:00:00.000Z",
-                start_time: "12:00:00",
-                duration: null,
-                organiser: 1,
-                guests: [],
-                games: [],
-                visibility: true,
-                willing_to_teach: false,
-              });
+              guests: [],
+              games: [],
+              visibility: true,
+              willing_to_teach: false,
             });
-        });
+          });
+      });
+    });
+
+    describe("Error Handling", () => {
+      it("status: 400, missing required fields on body", () => {
+        return request(app)
+          .post("/api/events")
+          .send({})
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Missing Required Fields");
+          });
+      });
+    });
+  });
+});
+
+describe("PATCH", () => {
+  describe("/api/users/:user_id", () => {
+    describe("Functionality", () => {
+      it("status: 200, updates the values of a specified user and returns updated user", () => {
+        return request(app)
+          .patch("/api/users/1")
+          .send({ email: "newemail@email.com" })
+          .expect(200)
+          .then(({ body: { user } }) => {
+            expect(user).toEqual({
+              user_id: 1,
+              username: "BigJ",
+              name: "Joe",
+              email: "newemail@email.com",
+              location: "Liverpool",
+              fav_games: [1, 2, 3],
+              friends: [],
+            });
+          });
+      });
+      it("status: 200, ignores extra keys on body", () => {
+        return request(app)
+          .patch("/api/users/1")
+          .send({ email: "newemail@email.com", something_else: "aaaahhh" })
+          .expect(200)
+          .then(({ body: { user } }) => {
+            expect(user).toEqual({
+              user_id: 1,
+              username: "BigJ",
+              name: "Joe",
+              email: "newemail@email.com",
+              location: "Liverpool",
+              fav_games: [1, 2, 3],
+              friends: [],
+            });
+          });
+      });
+      it("status: 200, works with arrays", () => {
+        return request(app)
+          .patch("/api/users/1")
+          .send({ fav_games: [4, 5] })
+          .expect(200)
+          .then(({ body: { user } }) => {
+            expect(user).toEqual({
+              user_id: 1,
+              username: "BigJ",
+              name: "Joe",
+              email: "joefuller042@gmail.com",
+              location: "Liverpool",
+              fav_games: [4, 5],
+              friends: [],
+            });
+          });
       });
 
-      describe("Error Handling", () => {
-        it("status: 400, missing required fields on body", () => {
-          return request(app)
-            .post("/api/events")
-            .send({})
-            .expect(400)
-            .then(({ body: { msg } }) => {
-              expect(msg).toBe("Missing Required Fields");
+      it("status: 200, allows inc_games and inc_friends properties", () => {
+        return request(app)
+          .patch("/api/users/1")
+          .send({ inc_games: [4], inc_friends: [1, 2] })
+          .expect(200)
+          .then(({ body: { user } }) => {
+            expect(user).toEqual({
+              user_id: 1,
+              username: "BigJ",
+              name: "Joe",
+              email: "joefuller042@gmail.com",
+              location: "Liverpool",
+              fav_games: [1, 2, 3, 4],
+              friends: [1, 2],
             });
-        });
+          });
+      });
+    });
+
+    describe("Error Handling", () => {
+      it("status: 400, Bad Request when no body", () => {
+        return request(app)
+          .patch("/api/users/1")
+          .send({})
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Bad Request");
+          });
+      });
+
+      it("status: 400, invalid user_id", () => {
+        return request(app)
+          .patch("/api/users/cat")
+          .send({ email: "newemail@email.com" })
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("user_id must be a positive integer");
+          });
+      });
+
+      it("status: 404, user_id not found", () => {
+        return request(app)
+          .patch("/api/users/99999")
+          .send({ email: "newemail@email.com" })
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("User Not Found");
+          });
       });
     });
   });
 
-  describe("PATCH", () => {
-    describe("/api/users/:user_id", () => {
-      describe("Functionality", () => {
-        it("status: 200, updates the values of a specified user and returns updated user", () => {
-          return request(app)
-            .patch("/api/users/1")
-            .send({ email: "newemail@email.com" })
-            .expect(200)
-            .then(({ body: { user } }) => {
-              expect(user).toEqual({
-                user_id: 1,
-                username: "BigJ",
-                name: "Joe",
-                email: "newemail@email.com",
-                location: "Liverpool",
-                fav_games: [1, 2, 3],
-                friends: [],
-              });
+  describe("/api/events/:event_id", () => {
+    describe("Functionality", () => {
+      it("status: 200, updates values of a specific event and returns the updated event ", () => {
+        return request(app)
+          .patch("/api/events/2")
+          .send({ start_time: "16:15:00" })
+          .expect(200)
+          .then(({ body: { event } }) => {
+            expect(event).toEqual({
+              event_id: 2,
+              title: "Liverpool MeetUp",
+              description: "The actual, real, real boardgamemeetup",
+              latitude: "53.400002",
+              longitude: "-2.983333",
+              area: "Liverpool",
+              date: "2021-01-18T00:00:00.000Z",
+              start_time: "16:15:00",
+              duration: 120,
+              organiser: 2,
+              guests: [1, 2],
+              games: [],
+              visibility: true,
+              willing_to_teach: false,
             });
-        });
-        it("status: 200, ignores extra keys on body", () => {
-          return request(app)
-            .patch("/api/users/1")
-            .send({ email: "newemail@email.com", something_else: "aaaahhh" })
-            .expect(200)
-            .then(({ body: { user } }) => {
-              expect(user).toEqual({
-                user_id: 1,
-                username: "BigJ",
-                name: "Joe",
-                email: "newemail@email.com",
-                location: "Liverpool",
-                fav_games: [1, 2, 3],
-                friends: [],
-              });
-            });
-        });
-        it("status: 200, works with arrays", () => {
-          return request(app)
-            .patch("/api/users/1")
-            .send({ fav_games: [4, 5] })
-            .expect(200)
-            .then(({ body: { user } }) => {
-              expect(user).toEqual({
-                user_id: 1,
-                username: "BigJ",
-                name: "Joe",
-                email: "joefuller042@gmail.com",
-                location: "Liverpool",
-                fav_games: [4, 5],
-                friends: [],
-              });
-            });
-        });
-
-        it("status: 200, allows inc_games and inc_friends properties", () => {
-          return request(app)
-            .patch("/api/users/1")
-            .send({ inc_games: [4], inc_friends: [1, 2] })
-            .expect(200)
-            .then(({ body: { user } }) => {
-              expect(user).toEqual({
-                user_id: 1,
-                username: "BigJ",
-                name: "Joe",
-                email: "joefuller042@gmail.com",
-                location: "Liverpool",
-                fav_games: [1, 2, 3, 4],
-                friends: [1, 2],
-              });
-            });
-        });
+          });
       });
 
-      describe("Error Handling", () => {
-        it("status: 400, Bad Request when no body", () => {
-          return request(app)
-            .patch("/api/users/1")
-            .send({})
-            .expect(400)
-            .then(({ body: { msg } }) => {
-              expect(msg).toBe("Bad Request");
+      it("status: 200, ignores extra keys on body and returns updated event ", () => {
+        return request(app)
+          .patch("/api/events/2")
+          .send({ visibility: false, bannedUsers: "Bob Smith" })
+          .expect(200)
+          .then(({ body: { event } }) => {
+            expect(event).toEqual({
+              event_id: 2,
+              title: "Liverpool MeetUp",
+              description: "The actual, real, real boardgamemeetup",
+              latitude: "53.400002",
+              longitude: "-2.983333",
+              area: "Liverpool",
+              date: "2021-01-18T00:00:00.000Z",
+              start_time: "14:30:00",
+              duration: 120,
+              organiser: 2,
+              guests: [1, 2],
+              games: [],
+              visibility: false,
+              willing_to_teach: false,
             });
-        });
-
-        it("status: 400, invalid user_id", () => {
-          return request(app)
-            .patch("/api/users/cat")
-            .send({ email: "newemail@email.com" })
-            .expect(400)
-            .then(({ body: { msg } }) => {
-              expect(msg).toBe("user_id must be a positive integer");
-            });
-        });
-
-        it("status: 404, user_id not found", () => {
-          return request(app)
-            .patch("/api/users/99999")
-            .send({ email: "newemail@email.com" })
-            .expect(404)
-            .then(({ body: { msg } }) => {
-              expect(msg).toBe("User Not Found");
-            });
-        });
+          });
       });
     });
 
-    describe("/api/events/:event_id", () => {
-      describe("Functionality", () => {
-        it("status: 200, updates values of a specific event and returns the updated event ", () => {
-          return request(app)
-            .patch("/api/events/2")
-            .send({ start_time: "16:15:00" })
-            .expect(200)
-            .then(({ body: { event } }) => {
-              expect(event).toEqual({
-                event_id: 2,
-                title: "Liverpool MeetUp",
-                description: "The actual, real, real boardgamemeetup",
-                latitude: "53.400002",
-                longitude: "-2.983333",
-                area: "Liverpool",
-                date: "2021-01-18T00:00:00.000Z",
-                start_time: "16:15:00",
-                duration: 120,
-                organiser: 2,
-                guests: [1, 2],
-                games: [],
-                visibility: true,
-                willing_to_teach: false,
-              });
-            });
-        });
-
-        it("status: 200, ignores extra keys on body and returns updated event ", () => {
-          return request(app)
-            .patch("/api/events/2")
-            .send({ visibility: false, bannedUsers: "Bob Smith" })
-            .expect(200)
-            .then(({ body: { event } }) => {
-              expect(event).toEqual({
-                event_id: 2,
-                title: "Liverpool MeetUp",
-                description: "The actual, real, real boardgamemeetup",
-                latitude: "53.400002",
-                longitude: "-2.983333",
-                area: "Liverpool",
-                date: "2021-01-18T00:00:00.000Z",
-                start_time: "14:30:00",
-                duration: 120,
-                organiser: 2,
-                guests: [1, 2],
-                games: [],
-                visibility: false,
-                willing_to_teach: false,
-              });
-            });
-        });
+    describe("Error Handling", () => {
+      it("status: 400, Bad Request when no body", () => {
+        return request(app)
+          .patch("/api/events/1")
+          .send({})
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Bad Request");
+          });
       });
 
-      describe("Error Handling", () => {
-        it("status: 400, Bad Request when no body", () => {
-          return request(app)
-            .patch("/api/events/1")
-            .send({})
-            .expect(400)
-            .then(({ body: { msg } }) => {
-              expect(msg).toBe("Bad Request");
-            });
-        });
+      it("status: 400, invalid event_id", () => {
+        return request(app)
+          .patch("/api/events/badger")
+          .send({ start_time: "15:30:00" })
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("event_id must be a positive integer");
+          });
+      });
 
-        it("status: 400, invalid event_id", () => {
-          return request(app)
-            .patch("/api/events/badger")
-            .send({ start_time: "15:30:00" })
-            .expect(400)
-            .then(({ body: { msg } }) => {
-              expect(msg).toBe("event_id must be a positive integer");
-            });
-        });
-
-        it("status: 404, event_id not found", () => {
-          return request(app)
-            .patch("/api/events/1111")
-            .send({ start_time: "15:30:00" })
-            .expect(404)
-            .then(({ body: { msg } }) => {
-              expect(msg).toBe("Event Not Found");
-            });
-        });
+      it("status: 404, event_id not found", () => {
+        return request(app)
+          .patch("/api/events/1111")
+          .send({ start_time: "15:30:00" })
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Event Not Found");
+          });
       });
     });
   });
+});
 
-  describe("DELETE", () => {
-    describe("/api/events/:event_id", () => {
-      describe("Functionality", () => {
-        it("status 204, event deleted", () => {
-          return request(app).delete("/api/events/1").expect(204);
-        });
+describe("DELETE", () => {
+  describe("/api/events/:event_id", () => {
+    describe("Functionality", () => {
+      it("status: 204, event deleted", () => {
+        return request(app).delete("/api/events/1").expect(204);
       });
-      describe("Error Handling", () => {
-        it("status: 404, event_id not found", () => {
-          return request(app)
-            .delete("/api/events/565656")
-            .expect(404)
-            .then(({ body: { msg } }) => {
-              expect(msg).toBe("Event Not Found");
-            });
-        });
-        it("status: 400, invalid event_id", () => {
-          return request(app)
-            .delete("/api/events/sillySausages")
-            .expect(400)
-            .then(({ body: { msg } }) => {
-              expect(msg).toBe("event_id must be a positive integer");
-            });
-        });
+    });
+    describe("Error Handling", () => {
+      it("status: 404, event_id not found", () => {
+        return request(app)
+          .delete("/api/events/565656")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Event Not Found");
+          });
+      });
+      it("status: 400, invalid event_id", () => {
+        return request(app)
+          .delete("/api/events/sillySausages")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("event_id must be a positive integer");
+          });
       });
     });
   });
+});
 
-  describe("Initial Endpoint Error Handling", () => {
-    it("status: 404, Not Found", () => {
-      return request(app)
-        .get("/api/bananas")
-        .expect(404)
-        .then(({ body: { msg } }) => {
-          expect(msg).toBe("Not Found");
-        });
-    });
+describe("Initial Endpoint Error Handling", () => {
+  it("status: 404, Not Found", () => {
+    return request(app)
+      .get("/api/bananas")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Not Found");
+      });
   });
 });
