@@ -48,6 +48,29 @@
       ]
     }
   },
+  "GET /api/users/:user_id/events": {
+    "description": "returns an array of events the specified user is in the guest array of",
+    "exampleResponse": {
+      "events": [
+        {
+          "event_id": 2,
+          "title": "Liverpool MeetUp",
+          "description": "The actual, real, real boardgamemeetup",
+          "latitude": "53.400002",
+          "longitude": "-2.983333",
+          "area": "Liverpool",
+          "date": "2021-01-18T00:00:00.000Z",
+          "start_time": "14:30:00",
+          "duration": 120,
+          "organiser": 2,
+          "visibility": true,
+          "willing_to_teach": false,
+          "guests": [1, 2],
+          "games": [15, 27]
+        }
+      ]
+    }
+  },
   "GET /api/games": {
     "description": "returns an array of all games",
     "exampleResponse": {
@@ -138,6 +161,64 @@
       ]
     }
   },
+  "GET /api/events/:event_id/games": {
+    "description": "returns an array of all the games in an event's games array",
+    "exampleResponse": {
+      "games": [
+        {
+          "game_id": 1,
+          "name": "root",
+          "description": " Find adventure in this marvelous asymmetric game. Root provides limitless replay value as you and your friends explore the unique factions all wanting to rule a fantastic forest kingdom. Play as the Marquise de Cat and dominate the woods, extracting its riches and policing its inhabitants, as the Woodland Alliance, gathering supporters and coordinate revolts against the ruling regime, the Eyrie Dynasties, regaining control of the woods while keeping your squabbling court at bay, or as the Vagabond, seeking fame and fortune as you forge alliances and rivalries with the other players. Each faction has its own play style and paths to victory, providing an immersive game experience you will want to play again and again. ",
+          "image_url": "https://s3-us-west-1.amazonaws.com/5cc.images/games/uploaded/1540147295104",
+          "min_players": 2,
+          "max_players": 4,
+          "rules_url": "https://drive.google.com/drive/folders/1i9-iCUDzfGMs7HjFHhahwMS6efvvfX5w"
+        }
+      ]
+    }
+  },
+  "GET /api/groups": {
+    "description": "returns an array of all groups",
+    "exampleResponse": {
+      "groups": [
+        {
+          "group_id": 1,
+          "organiser": 1,
+          "name": "catbus",
+          "users": [1, 2],
+          "events": [2]
+        }
+      ]
+    }
+  },
+  "GET /api/groups/:group_id": {
+    "description": "returns the specified group object",
+    "exampleResponse": {
+      "group": {
+        "group_id": 1,
+        "organiser": 1,
+        "name": "catbus",
+        "users": [1, 2],
+        "events": [2]
+      }
+    }
+  },
+  "GET /api/groups/:group_id/users": {
+    "description": "returns an array of all users which are members of the group",
+    "exampleResponse": {
+      "users": [
+        {
+          "user_id": 1,
+          "username": "BigJ",
+          "name": "Joe",
+          "email": "joefuller042@gmail.com",
+          "location": "Liverpool",
+          "friends": [],
+          "fav_games": [1, 2, 3]
+        }
+      ]
+    }
+  },
   "POST /api/users": {
     "description": "posts a new user and returns an object containing that user",
     "requiredFields": {
@@ -151,13 +232,15 @@
       "location": "Slough"
     },
     "exampleResponse": {
-      "user_id": 6,
-      "username": "JamesyBoy",
-      "name": "James",
-      "email": "myfakeemail@gmail.com",
-      "location": "Slough",
-      "friends": [],
-      "fav_games": []
+      "user": {
+        "user_id": 6,
+        "username": "JamesyBoy",
+        "name": "James",
+        "email": "myfakeemail@gmail.com",
+        "location": "Slough",
+        "friends": [],
+        "fav_games": []
+      }
     }
   },
   "POST /api/events": {
@@ -179,20 +262,22 @@
       "organiser": 1
     },
     "exampleResponse": {
-      "event_id": 3,
-      "title": "Be There or Be Square",
-      "description": null,
-      "longitude": "-2.983333",
-      "latitude": "53.400002",
-      "area": "Didsbury",
-      "date": "2021-01-18T00:00:00.000Z",
-      "start_time": "12:00:00",
-      "duration": null,
-      "organiser": 1,
-      "guests": [],
-      "games": [],
-      "visibility": true,
-      "willing_to_teach": false
+      "event": {
+        "event_id": 3,
+        "title": "Be There or Be Square",
+        "description": null,
+        "longitude": "-2.983333",
+        "latitude": "53.400002",
+        "area": "Didsbury",
+        "date": "2021-01-18T00:00:00.000Z",
+        "start_time": "12:00:00",
+        "duration": null,
+        "organiser": 1,
+        "guests": [],
+        "games": [],
+        "visibility": true,
+        "willing_to_teach": false
+      }
     }
   },
   "PATCH /api/users/:user_id": {
@@ -203,27 +288,79 @@
       "friends": [12, 30]
     },
     "exampleResponse": {
-      "user_id": 1,
-      "username": "BigJ",
-      "name": "Frederik",
-      "email": "newemail@email.com",
-      "location": "Liverpool",
-      "fav_games": [1, 2, 3],
-      "friends": [12, 30]
+      "user": {
+        "user_id": 1,
+        "username": "BigJ",
+        "name": "Frederik",
+        "email": "newemail@email.com",
+        "location": "Liverpool",
+        "fav_games": [1, 2, 3],
+        "friends": [12, 30]
+      }
     },
-    "also": "specific keys inc_games and inc_friends will add to the respective arrays instead of replacing them. This example carries on from the above",
+    "also": "specific keys inc_games and inc_friends will add to the respective arrays instead of replacing them. out_games and out_friends are the inverse of these properties. This example carries on from the above",
     "secondaryExamplePatch": {
       "inc_games": [6, 10],
       "inc_friends": [1, 4]
     },
     "secondaryExampleResponse": {
-      "user_id": 1,
-      "username": "BigJ",
-      "name": "Frederik",
-      "email": "newemail@email.com",
-      "location": "Liverpool",
-      "fav_games": [1, 2, 3, 6, 10],
-      "friends": [12, 30, 1, 4]
+      "user": {
+        "user_id": 1,
+        "username": "BigJ",
+        "name": "Frederik",
+        "email": "newemail@email.com",
+        "location": "Liverpool",
+        "fav_games": [1, 2, 3, 6, 10],
+        "friends": [12, 30, 1, 4]
+      }
     }
+  },
+  "PATCH /api/events/:event_id": {
+    "description": "updates the specified event with the new values and returns the updated event object",
+    "examplePatch": { "start_time": "16:15:00" },
+    "exampleResponse": {
+      "event": {
+        "event_id": 2,
+        "title": "Liverpool MeetUp",
+        "description": "The actual, real, real boardgamemeetup",
+        "latitude": "53.400002",
+        "longitude": "-2.983333",
+        "area": "Liverpool",
+        "date": "2021-01-18T00:00:00.000Z",
+        "start_time": "16:15:00",
+        "duration": 120,
+        "organiser": 2,
+        "guests": [1, 2],
+        "games": [15, 27],
+        "visibility": true,
+        "willing_to_teach": false
+      }
+    },
+    "also": "specific keys inc_games and inc_guests will add to the respective arrays instead of replacing them. out_games and out_guests are the inverse of these properties. This example carries on from the above",
+    "secondaryExamplePatch": {
+      "inc_games": [6, 10],
+      "inc_guests": [10, 4]
+    },
+    "secondaryExampleResponse": {
+      "event": {
+        "event_id": 2,
+        "title": "Liverpool MeetUp",
+        "description": "The actual, real, real boardgamemeetup",
+        "latitude": "53.400002",
+        "longitude": "-2.983333",
+        "area": "Liverpool",
+        "date": "2021-01-18T00:00:00.000Z",
+        "start_time": "16:15:00",
+        "duration": 120,
+        "organiser": 2,
+        "guests": [1, 2, 10, 4],
+        "games": [15, 27, 6, 10],
+        "visibility": true,
+        "willing_to_teach": false
+      }
+    }
+  },
+  "DELETE /api/events/:event_id": {
+    "description": "deletes the specified event from the database. No return"
   }
 }
