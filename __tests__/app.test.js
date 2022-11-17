@@ -62,7 +62,7 @@ describe("GET", () => {
               name: "Joe",
               email: "joefuller042@gmail.com",
               location: "Liverpool",
-              friends: [],
+              friends: [5],
               fav_games: [1, 2, 3],
             });
           });
@@ -695,7 +695,7 @@ describe("PATCH", () => {
               email: "newemail@email.com",
               location: "Liverpool",
               fav_games: [1, 2, 3],
-              friends: [],
+              friends: [5],
             });
           });
       });
@@ -712,7 +712,7 @@ describe("PATCH", () => {
               email: "newemail@email.com",
               location: "Liverpool",
               fav_games: [1, 2, 3],
-              friends: [],
+              friends: [5],
             });
           });
       });
@@ -729,7 +729,7 @@ describe("PATCH", () => {
               email: "joefuller042@gmail.com",
               location: "Liverpool",
               fav_games: [4, 5],
-              friends: [],
+              friends: [5],
             });
           });
       });
@@ -747,7 +747,25 @@ describe("PATCH", () => {
               email: "joefuller042@gmail.com",
               location: "Liverpool",
               fav_games: [1, 2, 3, 4],
-              friends: [1, 2],
+              friends: [5, 1, 2],
+            });
+          });
+      });
+
+      it("status: 200, allows out_games and out_friends properties", () => {
+        return request(app)
+          .patch("/api/users/1")
+          .send({ out_games: [2, 1], out_friends: [5] })
+          .expect(200)
+          .then(({ body: { user } }) => {
+            expect(user).toEqual({
+              user_id: 1,
+              username: "BigJ",
+              name: "Joe",
+              email: "joefuller042@gmail.com",
+              location: "Liverpool",
+              fav_games: [3],
+              friends: [],
             });
           });
       });
