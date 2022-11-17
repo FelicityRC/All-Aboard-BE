@@ -394,7 +394,68 @@ describe("GET", () => {
       });
     });
   });
-  describe("/api/groups", () => {
+  describe("/api/events/:event_id/games", () => {
+    describe("Functionality", () => {
+      it("status: 200, responds with an array of games which will be provided at the specified event", () => {
+        return request(app)
+          .get("/api/events/2/games")
+          .expect(200)
+          .then(({ body: { games } }) => {
+            expect(games).toBeInstanceOf(Array);
+            games.forEach((game) => {
+              expect(game).toEqual(
+                expect.objectContaining({
+                  name: expect.any(String),
+                  description: expect.any(String),
+                  image_url: expect.any(String),
+                  min_players: expect.any(Number),
+                  max_players: expect.any(Number),
+                  // rules_url: expect.any(String).OR.expect.any(null),
+                   })
+              );
+            });
+          });
+      });
+    });
+                  
+    describe("Error Handling", () => {
+      it("status: 400, Bad Request", () => {
+        return request(app)
+          .get("/api/events/howdy/games")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("event_id must be a positive integer");
+              });
+      });
+
+  it("status: 400, Bad Request", () => {
+        return request(app)
+          .get("/api/events/-200/games")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("event_id must be a positive integer");
+             });
+      });
+            
+        it("status: 400, Bad Request", () => {
+        return request(app)
+          .get("/api/events/6.5/games")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("event_id must be a positive integer");
+             });
+      });
+            
+      it("status: 404, Not Found", () => {
+        return request(app)
+          .get("/api/events/4321/games")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Event Not Found");
+             });
+      });         
+          
+describe("/api/groups", () => {
     describe("Functionality", () => {
       it("status: 200, responds with an array of groups", () => {
         return request(app)
@@ -410,6 +471,7 @@ describe("GET", () => {
                   organiser: expect.any(Number),
                   users: expect.any(Array),
                   events: expect.any(Array),
+
                 })
               );
             });
@@ -417,6 +479,7 @@ describe("GET", () => {
       });
     });
   });
+  
   describe("/api/groups/:group_id", () => {
     describe("Functionality", () => {
       it("status: 200, responds with the specified group object", () => {
@@ -444,24 +507,21 @@ describe("GET", () => {
             expect(msg).toBe("group_id must be a positive integer");
           });
       });
-      it("status: 400, Bad Request", () => {
-        return request(app)
+    
           .get("/api/groups/-50")
           .expect(400)
           .then(({ body: { msg } }) => {
             expect(msg).toBe("group_id must be a positive integer");
           });
       });
-      it("status: 400, Bad Request", () => {
-        return request(app)
+   
           .get("/api/groups/10.5")
           .expect(400)
           .then(({ body: { msg } }) => {
             expect(msg).toBe("group_id must be a positive integer");
           });
       });
-      it("status: 404, Not Found", () => {
-        return request(app)
+
           .get("/api/groups/999")
           .expect(404)
           .then(({ body: { msg } }) => {
