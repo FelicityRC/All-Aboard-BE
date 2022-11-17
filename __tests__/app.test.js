@@ -162,6 +162,62 @@ describe("GET", () => {
       });
     });
   });
+  describe("/api/users/:user_id/events", () => {
+    describe("Functionality", () => {
+      it("status: 200, responds with all events the specified user is attending", () => {
+        return request(app)
+          .get("/api/users/1/events")
+          .expect(200)
+          .then(({ body: { events } }) => {
+            expect(events).toBeInstanceOf(Array);
+            events.forEach((event) => {
+              expect(event).toEqual(
+                expect.objectContaining({
+                  event_id: expect.any(Number),
+                  title: expect.any(String),
+                  description: expect.any(String),
+                  latitude: expect.any(String),
+                  longitude: expect.any(String),
+                  area: expect.any(String),
+                  date: expect.any(String),
+                  organiser: expect.any(Number),
+                  visibility: expect.any(Boolean),
+                  willing_to_teach: expect.any(Boolean),
+                  guests: expect.any(Array),
+                  games: expect.any(Array),
+                })
+              );
+            });
+          });
+      });
+    });
+    describe("Error Handling", () => {
+      it("status: 400, Bad Request", () => {
+        return request(app)
+          .get("/api/users/words/events")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("user_id must be a positive integer");
+          });
+      });
+      it("status: 400, Bad Request", () => {
+        return request(app)
+          .get("/api/users/-10/events")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("user_id must be a positive integer");
+          });
+      });
+      it("status: 400, Bad Request", () => {
+        return request(app)
+          .get("/api/users/12.5/events")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("user_id must be a positive integer");
+          });
+      });
+    });
+  });
   describe("/api/games", () => {
     describe("Functionality", () => {
       it("status: 200, responds with an array of games", () => {
