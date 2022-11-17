@@ -91,7 +91,7 @@ const seed = async (data) => {
   await db.query(insertGamesQueryStr).then((result) => result.rows);
 
   const insertEventsQueryStr = format(
-    "INSERT INTO events (title, description, latitude, longitude, area, date, start_time, duration, organiser, visibility, willing_to_teach, guests) VALUES %L RETURNING *;",
+    "INSERT INTO events (title, description, latitude, longitude, area, date, start_time, duration, organiser, visibility, willing_to_teach, guests, games) VALUES %L RETURNING *;",
     eventData.map(
       ({
         title,
@@ -106,6 +106,7 @@ const seed = async (data) => {
         visibility,
         willing_to_teach,
         guests,
+        games,
       }) => [
         title,
         description,
@@ -119,6 +120,7 @@ const seed = async (data) => {
         visibility,
         willing_to_teach,
         "{" + guests + "}",
+        "{" + games + "}",
       ]
     )
   );
