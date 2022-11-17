@@ -90,9 +90,9 @@ exports.updateUser = (user_id, body) => {
       } else if (key === "inc_friends") {
         queryString += `friends=ARRAY_CAT(friends, ARRAY[${body["inc_friends"]}]), `;
       } else if (key === "out_games") {
-        queryString += `fav_games=(SELECT ARRAY(SELECT UNNEST(fav_games) EXCEPT SELECT UNNEST('{${body["out_games"]}}'::int[]))), `;
+        queryString += `fav_games=(SELECT ARRAY(SELECT UNNEST(fav_games) EXCEPT SELECT UNNEST('{${body["out_games"]}}'::INT[]))), `;
       } else if (key === "out_friends") {
-        queryString += `friends=(SELECT ARRAY(SELECT UNNEST(friends) EXCEPT SELECT UNNEST('{${body["out_friends"]}}'::int[]))), `;
+        queryString += `friends=(SELECT ARRAY(SELECT UNNEST(friends) EXCEPT SELECT UNNEST('{${body["out_friends"]}}'::INT[]))), `;
       } else {
         queryString += `${key}='${body[key]}', `;
       }
