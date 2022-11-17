@@ -352,7 +352,7 @@ describe("GET", () => {
               organiser: 2,
               visibility: true,
               willing_to_teach: false,
-              games: [],
+              games: [15, 27],
               guests: [1, 2],
             });
           });
@@ -880,7 +880,7 @@ describe("PATCH", () => {
               duration: 120,
               organiser: 2,
               guests: [1, 2],
-              games: [],
+              games: [15, 27],
               visibility: true,
               willing_to_teach: false,
             });
@@ -905,8 +905,57 @@ describe("PATCH", () => {
               duration: 120,
               organiser: 2,
               guests: [1, 2],
-              games: [],
+              games: [15, 27],
               visibility: false,
+              willing_to_teach: false,
+            });
+          });
+      });
+      it("status: 200, allows inc_games and inc_guests properties", () => {
+        return request(app)
+          .patch("/api/events/2")
+          .send({ inc_games: [4], inc_guests: [10, 20] })
+          .expect(200)
+          .then(({ body: { event } }) => {
+            expect(event).toEqual({
+              event_id: 2,
+              title: "Liverpool MeetUp",
+              description: "The actual, real, real boardgamemeetup",
+              latitude: "53.400002",
+              longitude: "-2.983333",
+              area: "Liverpool",
+              date: "2021-01-18T00:00:00.000Z",
+              start_time: "14:30:00",
+              duration: 120,
+              organiser: 2,
+              guests: [1, 2, 10, 20],
+              games: [15, 27, 4],
+              visibility: true,
+              willing_to_teach: false,
+            });
+          });
+      });
+
+      it("status: 200, allows out_games and out_guests properties", () => {
+        return request(app)
+          .patch("/api/events/2")
+          .send({ out_games: [27], out_guests: [1, 2] })
+          .expect(200)
+          .then(({ body: { event } }) => {
+            expect(event).toEqual({
+              event_id: 2,
+              title: "Liverpool MeetUp",
+              description: "The actual, real, real boardgamemeetup",
+              latitude: "53.400002",
+              longitude: "-2.983333",
+              area: "Liverpool",
+              date: "2021-01-18T00:00:00.000Z",
+              start_time: "14:30:00",
+              duration: 120,
+              organiser: 2,
+              guests: [],
+              games: [15],
+              visibility: true,
               willing_to_teach: false,
             });
           });
