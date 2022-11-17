@@ -2,9 +2,10 @@ const db = require("../connection");
 const format = require("pg-format");
 
 const seed = async (data) => {
-  const { userData, gameData, eventData } = data;
+  const { userData, gameData, eventData, groupData } = data;
 
   await db.query(`DROP TABLE IF EXISTS events;`);
+  await db.query(`DROP TABLE IF EXISTS groups`);
   await db.query(`DROP TABLE IF EXISTS games;`);
   await db.query(`DROP TABLE IF EXISTS users;`);
 
@@ -49,6 +50,15 @@ const seed = async (data) => {
             max_players INT,
             rules_url VARCHAR
         );`);
+
+  await db.query(`
+        CREATE TABLE groups (
+            group_id SERIAL PRIMARY KEY,
+            organiser INT NOT NULL,
+            name VARCHAR NOT NULL,
+            users INT[] DEFAULT ARRAY[]::INT[],
+            events INT[] DEFAULT ARRAY[]::INT[]
+        )`);
 
   const insertUsersQueryStr = format(
     "INSERT INTO users (username, name, email, location, fav_games) VALUES %L RETURNING *;",
@@ -113,6 +123,18 @@ const seed = async (data) => {
   );
 
   await db.query(insertEventsQueryStr).then((result) => result.rows);
+
+  const insertGroupsQueryStr = format(
+    `INSERT INTO groups (organiser, name, users, events) VALUES %L RETURNING *`,
+    groupData.map(({ organiser, name, users, events }) => [
+      organiser,
+      name,
+      "{" + users + "}",
+      "{" + events + "}",
+    ])
+  );
+
+  await db.query(insertGroupsQueryStr).then((result) => result.rows);
 };
 
 module.exports = seed;

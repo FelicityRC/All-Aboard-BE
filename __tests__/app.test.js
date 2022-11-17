@@ -394,7 +394,6 @@ describe("GET", () => {
       });
     });
   });
-
   describe("/api/events/:event_id/games", () => {
     describe("Functionality", () => {
       it("status: 200, responds with an array of games which will be provided at the specified event", () => {
@@ -412,12 +411,13 @@ describe("GET", () => {
                   min_players: expect.any(Number),
                   max_players: expect.any(Number),
                   // rules_url: expect.any(String).OR.expect.any(null),
-                })
+                   })
               );
             });
           });
       });
     });
+                  
     describe("Error Handling", () => {
       it("status: 400, Bad Request", () => {
         return request(app)
@@ -425,30 +425,107 @@ describe("GET", () => {
           .expect(400)
           .then(({ body: { msg } }) => {
             expect(msg).toBe("event_id must be a positive integer");
-          });
+              });
       });
-      it("status: 400, Bad Request", () => {
+
+  it("status: 400, Bad Request", () => {
         return request(app)
           .get("/api/events/-200/games")
           .expect(400)
           .then(({ body: { msg } }) => {
             expect(msg).toBe("event_id must be a positive integer");
-          });
+             });
       });
-      it("status: 400, Bad Request", () => {
+            
+        it("status: 400, Bad Request", () => {
         return request(app)
           .get("/api/events/6.5/games")
           .expect(400)
           .then(({ body: { msg } }) => {
             expect(msg).toBe("event_id must be a positive integer");
-          });
+             });
       });
+            
       it("status: 404, Not Found", () => {
         return request(app)
           .get("/api/events/4321/games")
           .expect(404)
           .then(({ body: { msg } }) => {
             expect(msg).toBe("Event Not Found");
+             });
+      });         
+          
+describe("/api/groups", () => {
+    describe("Functionality", () => {
+      it("status: 200, responds with an array of groups", () => {
+        return request(app)
+          .get("/api/groups")
+          .expect(200)
+          .then(({ body: { groups } }) => {
+            expect(groups).toBeInstanceOf(Array);
+            expect(groups).toHaveLength(2);
+            groups.forEach((group) => {
+              expect(group).toEqual(
+                expect.objectContaining({
+                  name: expect.any(String),
+                  organiser: expect.any(Number),
+                  users: expect.any(Array),
+                  events: expect.any(Array),
+
+                })
+              );
+            });
+          });
+      });
+    });
+  });
+  
+  describe("/api/groups/:group_id", () => {
+    describe("Functionality", () => {
+      it("status: 200, responds with the specified group object", () => {
+        return request(app)
+          .get("/api/groups/1")
+          .expect(200)
+          .then(({ body: { group } }) => {
+            expect(group).toBeInstanceOf(Object);
+            expect(group).toEqual({
+              group_id: 1,
+              name: "catbus",
+              organiser: 1,
+              users: [1, 2],
+              events: [2],
+            });
+          });
+      });
+    });
+    describe("Error Handling", () => {
+      it("status: 400, Bad Request", () => {
+        return request(app)
+          .get("/api/groups/hello")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("group_id must be a positive integer");
+          });
+      });
+    
+          .get("/api/groups/-50")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("group_id must be a positive integer");
+          });
+      });
+   
+          .get("/api/groups/10.5")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("group_id must be a positive integer");
+          });
+      });
+
+          .get("/api/groups/999")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Group Not Found");
           });
       });
     });
