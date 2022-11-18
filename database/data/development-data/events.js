@@ -9,6 +9,7 @@ module.exports = [
     duration: 120,
     visibility: true,
     willing_to_teach: true,
+    max_players: 5
   },
   {
     title: "Liverpool MeetUp",
@@ -20,5 +21,6 @@ module.exports = [
     duration: 120,
     visibility: true,
     willing_to_teach: false,
+    max_players: 5
   },
 ];

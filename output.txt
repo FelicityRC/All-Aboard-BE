@@ -1,6 +1,6 @@
-You are now connected to database "all_aboard" as user "jessica".
- user_id | uid | username | location  |         games          | game_id | group_id |   group_name    | event_id |                  events                  
----------+-----+----------+-----------+------------------------+---------+----------+-----------------+----------+------------------------------------------
-       1 | 1   | BigJ     | Liverpool | {root,scythe,wingspan} | {1,2,3} | {1,2}    | {buscat,catbus} | {1,2}    | {"Liverpool MeetUp","Manchester MeetUp"}
+You are now connected to database "all_aboard" as user "chris".
+ event_id |      title       | description | latitude  | longitude |   area    |    date    | start_time | duration | visibility | willing_to_teach | max_players |                games                | guests | username 
+----------+------------------+-------------+-----------+-----------+-----------+------------+------------+----------+------------+------------------+-------------+-------------------------------------+--------+----------
+        2 | Liverpool MeetUp |             | 53.400002 | -2.983333 | Liverpool | 2021-01-18 | 14:30:00   |      120 | t          | f                |           5 | {azul,gloomhaven,terraforming-mars} |      2 | Little J
 (1 row)
 

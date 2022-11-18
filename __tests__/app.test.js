@@ -47,14 +47,13 @@ describe("GET", () => {
       });
     });
   });
-  describe.only("/api/users/:user_id", () => {
+  describe("/api/users/:user_id", () => {
     describe("Functionality", () => {
       it("status: 200, responds with the specified user object", () => {
         return request(app)
           .get("/api/users/1")
           .expect(200)
           .then(({ body: { user } }) => {
-            console.log(user);
             expect(user).toBeInstanceOf(Object);
             expect(user).toEqual({
               user_id: 1,
@@ -102,121 +101,6 @@ describe("GET", () => {
           .expect(404)
           .then(({ body: { msg } }) => {
             expect(msg).toBe("User Not Found");
-          });
-      });
-    });
-  });
-  describe.only("/api/users/:user_id/games", () => {
-    describe("Functionality", () => {
-      it("status: 200, responds with the specified users fav_games objects", () => {
-        return request(app)
-          .get("/api/users/1/games")
-          .expect(200)
-          .then(({ body: { games } }) => {
-            expect(games).toBeInstanceOf(Array);
-            games.forEach((game) => {
-              expect(game).toEqual(
-                expect.objectContaining({
-                  name: expect.any(String),
-                  description: expect.any(String),
-                  image_url: expect.any(String),
-                  min_players: expect.any(Number),
-                  max_players: expect.any(Number),
-                  // some rules_urls are null
-                  //   rules_url: expect.any(String),
-                })
-              );
-            });
-          });
-      });
-    });
-    describe("Error Handling", () => {
-      it("status: 400, Bad Request", () => {
-        return request(app)
-          .get("/api/users/words/games")
-          .expect(400)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe("user_id must be a positive integer");
-          });
-      });
-      it("status: 400, Bad Request", () => {
-        return request(app)
-          .get("/api/users/-10/games")
-          .expect(400)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe("user_id must be a positive integer");
-          });
-      });
-      it("status: 400, Bad Request", () => {
-        return request(app)
-          .get("/api/users/12.5/games")
-          .expect(400)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe("user_id must be a positive integer");
-          });
-      });
-      it("status: 404, Not Found", () => {
-        return request(app)
-          .get("/api/users/999/games")
-          .expect(404)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe("User Not Found");
-          });
-      });
-    });
-  });
-  describe("/api/users/:user_id/events", () => {
-    describe("Functionality", () => {
-      it("status: 200, responds with all events the specified user is attending", () => {
-        return request(app)
-          .get("/api/users/1/events")
-          .expect(200)
-          .then(({ body: { events } }) => {
-            expect(events).toBeInstanceOf(Array);
-            events.forEach((event) => {
-              expect(event).toEqual(
-                expect.objectContaining({
-                  event_id: expect.any(Number),
-                  title: expect.any(String),
-                  description: expect.any(String),
-                  latitude: expect.any(String),
-                  longitude: expect.any(String),
-                  area: expect.any(String),
-                  date: expect.any(String),
-                  organiser: expect.any(Number),
-                  visibility: expect.any(Boolean),
-                  willing_to_teach: expect.any(Boolean),
-                  guests: expect.any(Array),
-                  games: expect.any(Array),
-                })
-              );
-            });
-          });
-      });
-    });
-    describe("Error Handling", () => {
-      it("status: 400, Bad Request", () => {
-        return request(app)
-          .get("/api/users/words/events")
-          .expect(400)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe("user_id must be a positive integer");
-          });
-      });
-      it("status: 400, Bad Request", () => {
-        return request(app)
-          .get("/api/users/-10/events")
-          .expect(400)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe("user_id must be a positive integer");
-          });
-      });
-      it("status: 400, Bad Request", () => {
-        return request(app)
-          .get("/api/users/12.5/events")
-          .expect(400)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe("user_id must be a positive integer");
           });
       });
     });
@@ -317,16 +201,13 @@ describe("GET", () => {
                 expect.objectContaining({
                   event_id: expect.any(Number),
                   title: expect.any(String),
-                  description: expect.any(String),
-                  latitude: expect.any(String),
-                  longitude: expect.any(String),
                   area: expect.any(String),
                   date: expect.any(String),
                   start_time: expect.any(String),
                   duration: expect.any(Number),
-                  organiser: expect.any(Number),
                   visibility: expect.any(Boolean),
                   willing_to_teach: expect.any(Boolean),
+                  max_players: expect.any(Number),
                 })
               );
             });
@@ -336,11 +217,12 @@ describe("GET", () => {
   });
   describe("/api/events/:event_id", () => {
     describe("Functionality", () => {
-      it("status: 200, responds with the specified event object", () => {
+      it.only("status: 200, responds with the specified event object", () => {
         return request(app)
           .get("/api/events/2")
           .expect(200)
           .then(({ body: { event } }) => {
+            console.log(event)
             expect(event).toBeInstanceOf(Object);
             expect(event).toEqual({
               event_id: 2,
@@ -352,11 +234,12 @@ describe("GET", () => {
               date: expect.any(String),
               start_time: "14:30:00",
               duration: 120,
-              organiser: 2,
               visibility: true,
               willing_to_teach: false,
-              games: [15, 27],
-              guests: [1, 2],
+              games: [ 'azul', 'gloomhaven', 'terraforming-mars' ],
+              guests: 2,
+              max_players: 5,
+              organiser: "Little J",
             });
           });
       });

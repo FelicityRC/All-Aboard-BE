@@ -18,7 +18,24 @@ exports.selectEventByEventId = (event_id) => {
   }
 
   return db
-    .query(`SELECT * FROM events WHERE event_id=$1`, [event_id])
+    .query(
+      `
+    SELECT events.*, ARRAY_AGG(DISTINCT games.name) AS games, COUNT(DISTINCT user_id) ::INT AS guests,
+(SELECT users.username
+FROM events
+JOIN userEvents ON events.event_id = userEvents.event_id
+JOIN users ON users.user_id = userEvents.user_id
+WHERE userEvents.organiser = true
+AND events.event_id = $1) AS organiser
+FROM events
+JOIN eventGames ON events.event_id = eventGames.event_id
+JOIN games ON games.game_id = eventGames.game_id
+JOIN userEvents ON events.event_id = userEvents.event_id
+WHERE events.event_id = $1
+GROUP BY events.event_id;
+    `,
+      [event_id]
+    )
     .then(({ rows: [event] }) => {
       if (event) {
         return event;

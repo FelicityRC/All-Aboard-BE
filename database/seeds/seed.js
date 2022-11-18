@@ -43,7 +43,8 @@ const seed = async (data) => {
             start_time TIME NOT NULL,
             duration INT,
             visibility BOOLEAN DEFAULT true,
-            willing_to_teach BOOLEAN DEFAULT false
+            willing_to_teach BOOLEAN DEFAULT false,
+            max_players INT
         );`);
 
   await db.query(`
@@ -123,7 +124,7 @@ const seed = async (data) => {
   await db.query(insertGamesQueryStr).then((result) => result.rows);
 
   const insertEventsQueryStr = format(
-    "INSERT INTO events (title, description, latitude, longitude, area, date, start_time, duration, visibility, willing_to_teach) VALUES %L RETURNING *;",
+    "INSERT INTO events (title, description, latitude, longitude, area, date, start_time, duration, visibility, willing_to_teach, max_players) VALUES %L RETURNING *;",
     eventData.map(
       ({
         title,
@@ -136,6 +137,7 @@ const seed = async (data) => {
         duration,
         visibility,
         willing_to_teach,
+        max_players
       }) => [
         title,
         description,
@@ -147,6 +149,7 @@ const seed = async (data) => {
         duration,
         visibility,
         willing_to_teach,
+        max_players
       ]
     )
   );
