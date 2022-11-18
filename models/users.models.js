@@ -17,7 +17,21 @@ exports.selectUserByUserId = (user_id) => {
   }
 
   return db
-    .query(`SELECT * FROM users WHERE user_id=$1`, [user_id])
+    .query(`SELECT users.*, ARRAY_AGG(DISTINCT games.name) as games, 
+    ARRAY_AGG(DISTINCT games.game_id) as games_id, 
+    ARRAY_AGG(DISTINCT groups.group_id) as group_id, 
+    ARRAY_AGG(DISTINCT groups.name) as group_name, 
+    ARRAY_AGG(DISTINCT events.event_id) as event_id,
+    ARRAY_AGG(DISTINCT events.title) as events
+    FROM users
+    JOIN usergames on users.user_id = usergames.user_id
+    JOIN userevents on users.user_id = userevents.user_id
+    JOIN usergroups on users.user_id = usergroups.user_id
+    JOIN games on usergames.game_id = games.game_id
+    JOIN events on userevents.event_id = events.event_id
+    JOIN groups on usergroups.group_id = groups.group_id
+    WHERE users.user_id = $1
+    GROUP BY users.user_id;`, [user_id])
     .then(({ rows: [user] }) => {
       if (user) {
         return user;

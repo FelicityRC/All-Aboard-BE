@@ -3,4 +3,6 @@ exports.gameData = require("./games.js");
 exports.eventData = require("./events.js");
 exports.groupData = require("./groups.js");
 exports.userEventData = require("./userEvents.js");
-exports.userGamesData = require("./userGames");
+exports.userGameData = require("./userGames");
+exports.eventGameData = require("./eventGames");
+exports.userGroupData = require("./userGroups");

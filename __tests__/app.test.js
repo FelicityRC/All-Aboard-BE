@@ -37,9 +37,8 @@ describe("GET", () => {
             users.forEach((user) => {
               expect(user).toEqual(
                 expect.objectContaining({
+                  uid: expect.any(String),
                   username: expect.any(String),
-                  name: expect.any(String),
-                  email: expect.any(String),
                   location: expect.any(String),
                 })
               );
@@ -48,22 +47,26 @@ describe("GET", () => {
       });
     });
   });
-  describe("/api/users/:user_id", () => {
+  describe.only("/api/users/:user_id", () => {
     describe("Functionality", () => {
       it("status: 200, responds with the specified user object", () => {
         return request(app)
           .get("/api/users/1")
           .expect(200)
           .then(({ body: { user } }) => {
+            console.log(user);
             expect(user).toBeInstanceOf(Object);
             expect(user).toEqual({
               user_id: 1,
+              uid: expect.any(String),
               username: "BigJ",
-              name: "Joe",
-              email: "joefuller042@gmail.com",
               location: "Liverpool",
-              friends: [5],
-              fav_games: [1, 2, 3],
+              games: ["root", "scythe", "wingspan",],
+              games_id: [1, 2, 3],
+              group_id: [1, 2],
+              group_name: ["buscat", "catbus"],
+              event_id: [1, 2],
+              events: [ 'Liverpool MeetUp', 'Manchester MeetUp' ]
             });
           });
       });
@@ -103,7 +106,7 @@ describe("GET", () => {
       });
     });
   });
-  describe("/api/users/:user_id/games", () => {
+  describe.only("/api/users/:user_id/games", () => {
     describe("Functionality", () => {
       it("status: 200, responds with the specified users fav_games objects", () => {
         return request(app)

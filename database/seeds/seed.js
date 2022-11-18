@@ -9,6 +9,8 @@ const seed = async (data) => {
     groupData,
     userEventData,
     userGameData,
+    eventGameData,
+    userGroupData,
   } = data;
 
   await db.query(`DROP TABLE IF EXISTS userGroups;`);
@@ -41,8 +43,7 @@ const seed = async (data) => {
             start_time TIME NOT NULL,
             duration INT,
             visibility BOOLEAN DEFAULT true,
-            willing_to_teach BOOLEAN DEFAULT false,
-            games INT[] DEFAULT ARRAY[]::INT[]
+            willing_to_teach BOOLEAN DEFAULT false
         );`);
 
   await db.query(`
@@ -59,10 +60,7 @@ const seed = async (data) => {
   await db.query(`
         CREATE TABLE groups (
             group_id SERIAL PRIMARY KEY,
-            organiser INT NOT NULL,
-            name VARCHAR NOT NULL,
-            users INT[] DEFAULT ARRAY[]::INT[],
-            events INT[] DEFAULT ARRAY[]::INT[]
+            name VARCHAR NOT NULL            
         )`);
 
 //   // junction tables
@@ -93,7 +91,8 @@ const seed = async (data) => {
         CREATE TABLE userGroups (
           userGroups_id SERIAL PRIMARY KEY NOT NULL,
           user_id INT REFERENCES users(user_id) NOT NULL,
-          group_id INT REFERENCES groups(group_id) NOT NULL
+          group_id INT REFERENCES groups(group_id) NOT NULL,
+          organiser BOOLEAN NOT NULL
         )`);
 
   const insertUsersQueryStr = format(
@@ -124,7 +123,7 @@ const seed = async (data) => {
   await db.query(insertGamesQueryStr).then((result) => result.rows);
 
   const insertEventsQueryStr = format(
-    "INSERT INTO events (title, description, latitude, longitude, area, date, start_time, duration, visibility, willing_to_teach, games) VALUES %L RETURNING *;",
+    "INSERT INTO events (title, description, latitude, longitude, area, date, start_time, duration, visibility, willing_to_teach) VALUES %L RETURNING *;",
     eventData.map(
       ({
         title,
@@ -137,7 +136,6 @@ const seed = async (data) => {
         duration,
         visibility,
         willing_to_teach,
-        games,
       }) => [
         title,
         description,
@@ -149,7 +147,6 @@ const seed = async (data) => {
         duration,
         visibility,
         willing_to_teach,
-        "{" + games + "}",
       ]
     )
   );
@@ -157,12 +154,9 @@ const seed = async (data) => {
   await db.query(insertEventsQueryStr).then((result) => result.rows);
 
   const insertGroupsQueryStr = format(
-    `INSERT INTO groups (organiser, name, users, events) VALUES %L RETURNING *`,
-    groupData.map(({ organiser, name, users, events }) => [
-      organiser,
-      name,
-      "{" + users + "}",
-      "{" + events + "}",
+    `INSERT INTO groups (name) VALUES %L RETURNING *`,
+    groupData.map(({ name }) => [
+     name,
     ])
   );
 
@@ -188,6 +182,28 @@ const seed = async (data) => {
   );
 
   await db.query(insertUserGameQueryStr).then((result) => result.rows);
+
+  const insertEventGameQueryStr = format(
+    `INSERT INTO eventGames (event_id, game_id) VALUES %L RETURNING *`,
+    eventGameData.map(({ event_id, game_id }) => [
+      event_id,
+      game_id,
+    ])
+  );
+
+  await db.query(insertEventGameQueryStr).then((result) => result.rows);
+
+  const insertUserGroupQueryStr = format(
+    `INSERT INTO userGroups (user_id, group_id, organiser) VALUES %L RETURNING *`,
+    userGroupData.map(({ user_id, group_id, organiser }) => [
+      user_id,
+      group_id,
+      organiser,
+    ])
+  );
+
+  await db.query(insertUserGroupQueryStr).then((result) => result.rows);
+
 };
 
 module.exports = seed;
