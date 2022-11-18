@@ -27,7 +27,7 @@ const seed = async (data) => {
             user_id SERIAL PRIMARY KEY,
             uid VARCHAR NOT NULL,
             username VARCHAR NOT NULL,
-            location VARCHAR NOT NULL
+            location VARCHAR
         );`);
   // check best way to store date/time
 

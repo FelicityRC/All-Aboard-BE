@@ -1,0 +1,6 @@
+You are now connected to database "all_aboard" as user "jessica".
+ user_id | uid | username | location  |         games          | game_id | group_id |   group_name    | event_id |                  events                  
+---------+-----+----------+-----------+------------------------+---------+----------+-----------------+----------+------------------------------------------
+       1 | 1   | BigJ     | Liverpool | {root,scythe,wingspan} | {1,2,3} | {1,2}    | {buscat,catbus} | {1,2}    | {"Liverpool MeetUp","Manchester MeetUp"}
+(1 row)
+
