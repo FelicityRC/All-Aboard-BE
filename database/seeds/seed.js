@@ -4,6 +4,10 @@ const format = require("pg-format");
 const seed = async (data) => {
   const { userData, gameData, eventData, groupData } = data;
 
+  await db.query(`DROP TABLE IF EXISTS userGroups;`);
+  await db.query(`DROP TABLE IF EXISTS userGames;`);
+  await db.query(`DROP TABLE IF EXISTS eventGames;`);
+  await db.query(`DROP TABLE IF EXISTS userEvents;`);
   await db.query(`DROP TABLE IF EXISTS events;`);
   await db.query(`DROP TABLE IF EXISTS groups`);
   await db.query(`DROP TABLE IF EXISTS games;`);
@@ -59,6 +63,38 @@ const seed = async (data) => {
             users INT[] DEFAULT ARRAY[]::INT[],
             events INT[] DEFAULT ARRAY[]::INT[]
         )`);
+  
+// junction tables
+
+  await db.query(`
+        CREATE TABLE userEvents (
+          userEvents_id SERIAL PRIMARY KEY NOT NULL,
+          user_id INT REFERENCES users(user_id) NOT NULL,
+          event_id INT REFERENCES events(event_id) NOT NULL,
+          organiser BOOLEAN NOT NULL
+        )`);
+    
+  await db.query(`
+        CREATE TABLE eventGames (
+          eventGames_id SERIAL PRIMARY KEY NOT NULL,
+          event_id INT REFERENCES events(event_id) NOT NULL,
+          game_id INT REFERENCES games(game_id) NOT NULL
+        )`);
+
+  await db.query(`
+        CREATE TABLE userGames (
+          userGames_id SERIAL PRIMARY KEY NOT NULL,
+          user_id INT REFERENCES users(user_id) NOT NULL,
+          game_id INT REFERENCES games(game_id) NOT NULL
+        )`);
+
+  await db.query(`
+        CREATE TABLE userGroups (
+          userGroups_id SERIAL PRIMARY KEY NOT NULL,
+          user_id INT REFERENCES users(user_id) NOT NULL,
+          group_id INT REFERENCES groups(group_id) NOT NULL
+        )`);
+
 
   const insertUsersQueryStr = format(
     "INSERT INTO users (username, name, email, location, fav_games, friends) VALUES %L RETURNING *;",
