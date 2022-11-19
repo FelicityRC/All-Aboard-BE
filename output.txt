@@ -1,7 +1,7 @@
 You are now connected to database "all_aboard" as user "chris".
- group_id |  name  
-----------+--------
-        1 | catbus
-        2 | buscat
+ group_id |  name  |                                                        users                                                        
+----------+--------+---------------------------------------------------------------------------------------------------------------------
+        1 | catbus | [{"user_id": 1, "username": "BigJ", "organiser": true}, {"user_id": 2, "username": "Little J", "organiser": false}]
+        2 | buscat | [{"user_id": 1, "username": "BigJ", "organiser": false}, {"user_id": 2, "username": "Little J", "organiser": true}]
 (2 rows)
 

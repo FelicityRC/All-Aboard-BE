@@ -308,7 +308,6 @@ describe("GET", () => {
           .get("/api/events")
           .expect(200)
           .then(({ body: { events } }) => {
-            console.log(events);
             expect(events).toBeInstanceOf(Array);
             expect(events).toHaveLength(2);
             events.forEach((event) => {
@@ -517,7 +516,7 @@ describe("GET", () => {
       });
     });
   });
-  describe.only("/api/groups", () => {
+  describe("/api/groups", () => {
     describe("Functionality", () => {
       it("status: 200, responds with an array of groups", () => {
         return request(app)
@@ -529,10 +528,9 @@ describe("GET", () => {
             groups.forEach((group) => {
               expect(group).toEqual(
                 expect.objectContaining({
+                  group_id:expect.any(Number),
                   name: expect.any(String),
-                  organiser: expect.any(Number),
                   users: expect.any(Array),
-                  events: expect.any(Array),
                 })
               );
             });
@@ -552,9 +550,7 @@ describe("GET", () => {
             expect(group).toEqual({
               group_id: 1,
               name: "catbus",
-              organiser: 1,
-              users: [1, 2],
-              events: [2],
+              users: expect.any(Array)
             });
           });
       });
@@ -594,62 +590,6 @@ describe("GET", () => {
       });
     });
   });
-  describe("/api/groups/:group_id/users", () => {
-    describe("Functionality", () => {
-      it("status: 200, responds with an array of users that are members of the specified group", () => {
-        return request(app)
-          .get("/api/groups/2/users")
-          .expect(200)
-          .then(({ body: { users } }) => {
-            expect(users).toBeInstanceOf(Array);
-            users.forEach((user) => {
-              expect(user).toEqual(
-                expect.objectContaining({
-                  username: expect.any(String),
-                  name: expect.any(String),
-                  email: expect.any(String),
-                  location: expect.any(String),
-                })
-              );
-            });
-          });
-      });
-    });
-    describe("Error Handling", () => {
-      it("status: 400, Bad Request", () => {
-        return request(app)
-          .get("/api/groups/hello/users")
-          .expect(400)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe("group_id must be a positive integer");
-          });
-      });
-      it("status: 400, Bad Request", () => {
-        return request(app)
-          .get("/api/groups/-50/users")
-          .expect(400)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe("group_id must be a positive integer");
-          });
-      });
-      it("status: 400, Bad Request", () => {
-        return request(app)
-          .get("/api/groups/10.5/users")
-          .expect(400)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe("group_id must be a positive integer");
-          });
-      });
-      it("status: 404, Not Found", () => {
-        return request(app)
-          .get("/api/groups/999/users")
-          .expect(404)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe("Group Not Found");
-          });
-      });
-    });
-  });
 });
 
 describe("POST", () => {
@@ -659,21 +599,17 @@ describe("POST", () => {
         return request(app)
           .post("/api/users")
           .send({
+            uid: 3,
             username: "Facility",
-            name: "Felicity",
-            email: "fbomb@hotmail.co.uk",
             location: "Manchester",
           })
           .expect(201)
           .then(({ body: { user } }) => {
             expect(user).toEqual({
+              uid: "3",
               user_id: 3,
               username: "Facility",
-              name: "Felicity",
-              email: "fbomb@hotmail.co.uk",
               location: "Manchester",
-              fav_games: [],
-              friends: [],
             });
           });
       });
