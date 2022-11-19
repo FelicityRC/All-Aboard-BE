@@ -54,7 +54,6 @@ describe("GET", () => {
           .get("/api/users/1")
           .expect(200)
           .then(({ body: { user } }) => {
-            console.log(user)
             expect(user).toBeInstanceOf(Object);
             expect(user).toEqual({
               user_id: 1,
@@ -104,7 +103,7 @@ describe("GET", () => {
     });
   });
   describe("/api/users/:user_id/games", () => {
-    describe.only("Functionality", () => {
+    describe("Functionality", () => {
       it("status: 200, responds with the specified users fav_games objects", () => {
         return request(app)
           .get("/api/users/1/games")
@@ -163,12 +162,13 @@ describe("GET", () => {
     });
   });
   describe("/api/users/:user_id/events", () => {
-    describe("Functionality", () => {
+    describe.only("Functionality", () => {
       it("status: 200, responds with all events the specified user is attending", () => {
         return request(app)
           .get("/api/users/1/events")
           .expect(200)
           .then(({ body: { events } }) => {
+            console.log(events)
             expect(events).toBeInstanceOf(Array);
             events.forEach((event) => {
               expect(event).toEqual(
@@ -303,7 +303,7 @@ describe("GET", () => {
     });
   });
   describe("/api/events", () => {
-    describe.only("Functionality", () => {
+    describe("Functionality", () => {
       it("status: 200, responds with an array of events", () => {
         return request(app)
           .get("/api/events")
@@ -333,7 +333,7 @@ describe("GET", () => {
   });
   describe("/api/events/:event_id", () => {
     describe("Functionality", () => {
-      it.only("status: 200, responds with the specified event object", () => {
+      it("status: 200, responds with the specified event object", () => {
         return request(app)
           .get("/api/events/2")
           .expect(200)

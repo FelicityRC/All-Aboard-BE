@@ -17,7 +17,8 @@ exports.selectUserByUserId = (user_id) => {
   }
 
   return db
-    .query(`SELECT users.*,
+    .query(
+      `SELECT users.*,
     JSON_AGG(
        DISTINCT jsonb_build_object('group_id', groups.group_id, 
                                   'name', groups.name)) AS groups, 
@@ -36,7 +37,9 @@ exports.selectUserByUserId = (user_id) => {
     JOIN events on userevents.event_id = events.event_id
     JOIN groups on usergroups.group_id = groups.group_id
     WHERE users.user_id = $1
-    GROUP BY users.user_id;`, [user_id])
+    GROUP BY users.user_id;`,
+      [user_id]
+    )
     .then(({ rows: [user] }) => {
       if (user) {
         return user;
@@ -140,22 +143,15 @@ exports.selectGamesByUserId = (user_id) => {
     });
   }
 
-  return db
-    .query(`SELECT * FROM users WHERE user_id=$1`, [user_id])
-    .then(({ rows: [user] }) => {
-      if (user) {
-        let queryString = `SELECT * FROM games WHERE `;
-        for (const game_id of user.fav_games) {
-          queryString += `game_id=${game_id} OR `;
-        }
-        queryString = queryString.slice(0, -3);
-        return db.query(queryString).then(({ rows: games }) => {
-          return games;
-        });
-      } else {
-        return Promise.reject({ status: 404, msg: "User Not Found" });
-      }
-    });
+  return db.query(
+    `SELECT games.*
+FROM games
+LEFT JOIN userGames ON games.game_id = userGames.game_id
+WHERE user_id = $1;`,
+    [user_id]
+  ).then(({rows: games}) => {
+    return games;
+  })
 };
 
 exports.selectEventsByUserId = (user_id) => {

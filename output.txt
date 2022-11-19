@@ -1,6 +1,6 @@
 You are now connected to database "all_aboard" as user "chris".
- user_id | uid | username | location  |                                 groups                                 |                                                          games                                                           |                                                               events                                                               
----------+-----+----------+-----------+------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------
-       1 | 1   | BigJ     | Liverpool | [{"name": "buscat", "group_id": 2}, {"name": "catbus", "group_id": 1}] | [{"game_id": 1, "game_title": "root"}, {"game_id": 2, "game_title": "scythe"}, {"game_id": 3, "game_title": "wingspan"}] | [{"name": "Liverpool MeetUp", "event_id": 2, "organiser": false}, {"name": "Manchester MeetUp", "event_id": 1, "organiser": true}]
+ event_id |       title       | description | latitude  | longitude |    area    |    date    | start_time | duration | visibility | willing_to_teach | max_players 
+----------+-------------------+-------------+-----------+-----------+------------+------------+------------+----------+------------+------------------+-------------
+        1 | Manchester MeetUp |             | 53.483959 | -2.244644 | Manchester | 2021-01-18 | 14:30:00   |      120 | t          | t                |           5
 (1 row)
 
