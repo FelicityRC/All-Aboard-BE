@@ -1,7 +1,15 @@
 const db = require("../database/connection");
 
 exports.selectEvents = () => {
-  return db.query(`SELECT * FROM events`).then(({ rows: events }) => {
+  return db.query(`
+  SELECT events.*, ARRAY_AGG(DISTINCT games.name) AS games, COUNT(DISTINCT userEvents.user_id) AS guests
+  FROM events
+  JOIN eventGames ON events.event_id = eventGames.event_id
+  JOIN games ON games.game_id = eventGames.game_id
+  JOIN userEvents ON events.event_id = userEvents.event_id
+  JOIN users ON users.user_id = userEvents.user_id
+  GROUP BY events.event_id;
+  `).then(({ rows: events }) => {
     return events;
   });
 };
@@ -20,7 +28,7 @@ exports.selectEventByEventId = (event_id) => {
   return db
     .query(
       `
-    SELECT events.*, ARRAY_AGG(DISTINCT games.name) AS games, COUNT(DISTINCT user_id) ::INT AS guests,
+    SELECT events.*, ARRAY_AGG(DISTINCT games.name) AS games, ARRAY_AGG(DISTINCT username) AS guests,
 (SELECT users.username
 FROM events
 JOIN userEvents ON events.event_id = userEvents.event_id
@@ -31,6 +39,7 @@ FROM events
 JOIN eventGames ON events.event_id = eventGames.event_id
 JOIN games ON games.game_id = eventGames.game_id
 JOIN userEvents ON events.event_id = userEvents.event_id
+JOIN users ON users.user_id = userEvents.user_id
 WHERE events.event_id = $1
 GROUP BY events.event_id;
     `,

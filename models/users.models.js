@@ -17,12 +17,17 @@ exports.selectUserByUserId = (user_id) => {
   }
 
   return db
-    .query(`SELECT users.*, ARRAY_AGG(DISTINCT games.name) as games, 
-    ARRAY_AGG(DISTINCT games.game_id) as games_id, 
-    ARRAY_AGG(DISTINCT groups.group_id) as group_id, 
-    ARRAY_AGG(DISTINCT groups.name) as group_name, 
-    ARRAY_AGG(DISTINCT events.event_id) as event_id,
-    ARRAY_AGG(DISTINCT events.title) as events
+    .query(`SELECT users.*,
+    JSON_AGG(
+       DISTINCT jsonb_build_object('group_id', groups.group_id, 
+                                  'name', groups.name)) AS groups, 
+    JSON_AGG(
+       DISTINCT jsonb_build_object('game_id', games.game_id, 
+                                  'game_title', games.name)) AS games,
+     JSON_AGG(
+       DISTINCT jsonb_build_object('event_id', events.event_id, 
+                                  'name', events.title,
+                                  'organiser', userevents.organiser)) AS events
     FROM users
     JOIN usergames on users.user_id = usergames.user_id
     JOIN userevents on users.user_id = userevents.user_id

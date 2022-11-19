@@ -14,9 +14,4 @@ module.exports = [
     event_id: 2,
     organiser: false,
   },
-  {
-    user_id: 2,
-    event_id: 2,
-    organiser: true,
-  },
 ];
