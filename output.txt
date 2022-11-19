@@ -1,9 +1,0 @@
-You are now connected to database "all_aboard" as user "chris".
-CREATE FUNCTION
-CREATE TRIGGER
- event_id |         title         | description | latitude  | longitude |   area   |    date    | start_time | duration | visibility | willing_to_teach | max_players 
-----------+-----------------------+-------------+-----------+-----------+----------+------------+------------+----------+------------+------------------+-------------
-       15 | Be There or Be Square |             | 53.400002 | -2.983333 | Didsbury | 2021-01-18 | 12:00:00   |          | t          | f                |            
-(1 row)
-
-INSERT 0 1

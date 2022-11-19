@@ -627,7 +627,7 @@ describe("POST", () => {
       });
     });
   });
-  describe.only("/api/events", () => {
+  describe("/api/events", () => {
     describe("Functionality", () => {
       it("status: 201, adds a new event and returns it", () => {
         return request(app)
@@ -677,7 +677,7 @@ describe("POST", () => {
 });
 
 describe("PATCH", () => {
-  describe("/api/users/:user_id", () => {
+  describe.only("/api/users/:user_id", () => {
     describe("Functionality", () => {
       it("status: 200, updates the values of a specified user and returns updated user", () => {
         return request(app)
@@ -688,11 +688,7 @@ describe("PATCH", () => {
             expect(user).toEqual({
               user_id: 1,
               username: "BigJ",
-              name: "Joe",
-              email: "newemail@email.com",
               location: "Liverpool",
-              fav_games: [1, 2, 3],
-              friends: [5],
             });
           });
       });
