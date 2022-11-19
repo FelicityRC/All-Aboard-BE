@@ -47,21 +47,29 @@ exports.patchEvent = (req, res, next) => {
 exports.getUsersByEventId = (req, res, next) => {
   const event_id = req.params.event_id;
 
-  selectUsersByEventId(event_id)
-    .then((users) => {
-      res.status(200).send({ users });
-    })
-    .catch((err) => next(err));
+  const promises = [
+    selectEventByEventId(event_id),
+    selectUsersByEventId(event_id)
+  ]
+  
+  Promise.all(promises)
+    .then((promises) => {
+      res.status(200).send({users: promises[1]})
+    }).catch(next);
 };
 
 exports.getGamesByEventId = (req, res, next) => {
   const event_id = req.params.event_id;
+  
+  const promises = [
+    selectEventByEventId(event_id),
+    selectGamesByEventId(event_id)
+  ]
 
-  selectGamesByEventId(event_id)
-    .then((games) => {
-      res.status(200).send({ games });
-    })
-    .catch((err) => next(err));
+  Promise.all(promises)
+    .then((promises) => {
+      res.status(200).send({games: promises[1]})
+    }).catch(next);
 };
 
 exports.deleteEvent = (req, res, next) => {

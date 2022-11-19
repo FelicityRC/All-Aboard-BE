@@ -1,6 +1,7 @@
 You are now connected to database "all_aboard" as user "chris".
- event_id |       title       | description | latitude  | longitude |    area    |    date    | start_time | duration | visibility | willing_to_teach | max_players 
-----------+-------------------+-------------+-----------+-----------+------------+------------+------------+----------+------------+------------------+-------------
-        1 | Manchester MeetUp |             | 53.483959 | -2.244644 | Manchester | 2021-01-18 | 14:30:00   |      120 | t          | t                |           5
-(1 row)
+ group_id |  name  
+----------+--------
+        1 | catbus
+        2 | buscat
+(2 rows)
 

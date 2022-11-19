@@ -165,7 +165,10 @@ exports.selectEventsByUserId = (user_id) => {
   }
 
   return db
-    .query(`SELECT * FROM events WHERE $1=ANY(guests)`, [user_id])
+    .query(`SELECT events.*
+    FROM events
+    LEFT JOIN userEvents ON events.event_id = userEvents.event_id
+    WHERE user_id = $1;`, [user_id])
     .then(({ rows: events }) => {
       return events;
     });

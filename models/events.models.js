@@ -1,17 +1,28 @@
 const db = require("../database/connection");
 
 exports.selectEvents = () => {
-  return db.query(`
-  SELECT events.*, ARRAY_AGG(DISTINCT games.name) AS games, COUNT(DISTINCT userEvents.user_id) AS guests
-  FROM events
-  JOIN eventGames ON events.event_id = eventGames.event_id
-  JOIN games ON games.game_id = eventGames.game_id
-  JOIN userEvents ON events.event_id = userEvents.event_id
-  JOIN users ON users.user_id = userEvents.user_id
-  GROUP BY events.event_id;
-  `).then(({ rows: events }) => {
-    return events;
-  });
+  return db
+    .query(
+      `
+      SELECT events.*, 
+      ARRAY_AGG(DISTINCT games.name) AS games, 
+      COUNT(userEvents.user_id) ::INT AS guests,
+      (SELECT username
+    FROM userEvents
+    LEFT JOIN users ON users.user_id = userEvents.user_id
+    WHERE userEvents.organiser = true
+    AND events.event_id = userEvents.event_id) AS organiser
+      FROM events
+      LEFT JOIN eventGames ON events.event_id = eventGames.event_id
+      JOIN games ON games.game_id = eventGames.game_id
+      LEFT JOIN userEvents ON events.event_id = userEvents.event_id
+      JOIN users ON users.user_id = userEvents.user_id
+      GROUP BY events.event_id;
+  `
+    )
+    .then(({ rows: events }) => {
+      return events;
+    });
 };
 
 exports.selectEventByEventId = (event_id) => {
@@ -28,20 +39,24 @@ exports.selectEventByEventId = (event_id) => {
   return db
     .query(
       `
-    SELECT events.*, ARRAY_AGG(DISTINCT games.name) AS games, ARRAY_AGG(DISTINCT username) AS guests,
-(SELECT users.username
-FROM events
-JOIN userEvents ON events.event_id = userEvents.event_id
-JOIN users ON users.user_id = userEvents.user_id
-WHERE userEvents.organiser = true
-AND events.event_id = $1) AS organiser
-FROM events
-JOIN eventGames ON events.event_id = eventGames.event_id
-JOIN games ON games.game_id = eventGames.game_id
-JOIN userEvents ON events.event_id = userEvents.event_id
-JOIN users ON users.user_id = userEvents.user_id
-WHERE events.event_id = $1
-GROUP BY events.event_id;
+      SELECT events.*, 
+      (SELECT users.username
+      FROM events
+      JOIN userEvents ON events.event_id = userEvents.event_id
+      JOIN users ON users.user_id = userEvents.user_id
+      WHERE userEvents.organiser = true
+      AND events.event_id = $1) AS organiser,
+          ARRAY_AGG(DISTINCT games.name) AS games,
+      JSON_AGG(
+             DISTINCT jsonb_build_object('user_id', users.user_id, 
+                                        'username', users.username)) AS guests
+      FROM events
+      LEFT JOIN eventGames ON events.event_id = eventGames.event_id
+      RIGHT JOIN games ON games.game_id = eventGames.game_id
+      LEFT JOIN userEvents ON events.event_id = userEvents.event_id
+      RIGHT JOIN users ON users.user_id = userEvents.user_id
+      WHERE events.event_id = $1
+      GROUP BY events.event_id;
     `,
       [event_id]
     )
@@ -65,20 +80,16 @@ exports.selectUsersByEventId = (event_id) => {
   }
 
   return db
-    .query(`SELECT * FROM events WHERE event_id=$1`, [event_id])
-    .then(({ rows: [event] }) => {
-      if (event) {
-        let queryString = `SELECT * FROM users WHERE `;
-        for (const guest_id of event.guests) {
-          queryString += `user_id=${guest_id} OR `;
-        }
-        queryString = queryString.slice(0, -3);
-        return db.query(queryString).then(({ rows: users }) => {
-          return users;
-        });
-      } else {
-        return Promise.reject({ status: 404, msg: "Event Not Found" });
-      }
+    .query(
+      `
+      SELECT users.* 
+      FROM userEvents
+      RIGHT JOIN users ON userEvents.user_id = users.user_id
+      WHERE event_id=$1;`,
+      [event_id]
+    )
+    .then(({ rows: users }) => {
+      return users;
     });
 };
 exports.selectGamesByEventId = (event_id) => {
@@ -91,20 +102,16 @@ exports.selectGamesByEventId = (event_id) => {
   }
 
   return db
-    .query(`SELECT * FROM events WHERE event_id=$1`, [event_id])
-    .then(({ rows: [event] }) => {
-      if (event) {
-        let queryString = `SELECT * FROM games WHERE `;
-        for (const game_id of event.games) {
-          queryString += `game_id=${game_id} OR `;
-        }
-        queryString = queryString.slice(0, -3);
-        return db.query(queryString).then(({ rows: games }) => {
-          return games;
-        });
-      } else {
-        return Promise.reject({ status: 404, msg: "Event Not Found" });
-      }
+    .query(
+      `
+      SELECT games.* 
+      FROM eventGames
+      RIGHT JOIN games ON eventGames.game_id = games.game_id
+      WHERE event_id=$1;`,
+      [event_id]
+    )
+    .then(({ rows: games }) => {
+      return games;
     });
 };
 

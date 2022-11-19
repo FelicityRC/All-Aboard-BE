@@ -62,7 +62,7 @@ describe("GET", () => {
               location: "Liverpool",
               games: expect.any(Array),
               groups: expect.any(Array),
-              events: expect.any(Array)
+              events: expect.any(Array),
             });
           });
       });
@@ -162,13 +162,12 @@ describe("GET", () => {
     });
   });
   describe("/api/users/:user_id/events", () => {
-    describe.only("Functionality", () => {
+    describe("Functionality", () => {
       it("status: 200, responds with all events the specified user is attending", () => {
         return request(app)
           .get("/api/users/1/events")
           .expect(200)
           .then(({ body: { events } }) => {
-            console.log(events)
             expect(events).toBeInstanceOf(Array);
             events.forEach((event) => {
               expect(event).toEqual(
@@ -180,11 +179,11 @@ describe("GET", () => {
                   longitude: expect.any(String),
                   area: expect.any(String),
                   date: expect.any(String),
-                  organiser: expect.any(Number),
+                  start_time: expect.any(String),
+                  duration: expect.any(Number),
                   visibility: expect.any(Boolean),
                   willing_to_teach: expect.any(Boolean),
-                  guests: expect.any(Array),
-                  games: expect.any(Array),
+                  max_players: expect.any(Number),
                 })
               );
             });
@@ -309,13 +308,17 @@ describe("GET", () => {
           .get("/api/events")
           .expect(200)
           .then(({ body: { events } }) => {
+            console.log(events);
             expect(events).toBeInstanceOf(Array);
+            expect(events).toHaveLength(2);
             events.forEach((event) => {
-              console.log(event)
               expect(event).toEqual(
                 expect.objectContaining({
                   event_id: expect.any(Number),
                   title: expect.any(String),
+                  description: expect.any(String),
+                  latitude: expect.any(String),
+                  longitude: expect.any(String),
                   area: expect.any(String),
                   date: expect.any(String),
                   start_time: expect.any(String),
@@ -323,7 +326,9 @@ describe("GET", () => {
                   visibility: expect.any(Boolean),
                   willing_to_teach: expect.any(Boolean),
                   max_players: expect.any(Number),
-                  organiser: "Little J"
+                  games: expect.any(Array),
+                  guests: expect.any(Number),
+                  organiser: expect.any(String),
                 })
               );
             });
@@ -351,8 +356,8 @@ describe("GET", () => {
               duration: 120,
               visibility: true,
               willing_to_teach: false,
-              games: [ 'azul', 'gloomhaven', 'terraforming-mars' ],
-              guests: [ 'BigJ', 'Little J' ],
+              games: ["azul", "gloomhaven", "terraforming-mars"],
+              guests: expect.any(Array),
               max_players: 5,
               organiser: "Little J",
             });
@@ -405,9 +410,9 @@ describe("GET", () => {
             users.forEach((user) => {
               expect(user).toEqual(
                 expect.objectContaining({
+                  user_id: expect.any(Number),
+                  uid: expect.any(String),
                   username: expect.any(String),
-                  name: expect.any(String),
-                  email: expect.any(String),
                   location: expect.any(String),
                 })
               );
@@ -512,7 +517,7 @@ describe("GET", () => {
       });
     });
   });
-  describe("/api/groups", () => {
+  describe.only("/api/groups", () => {
     describe("Functionality", () => {
       it("status: 200, responds with an array of groups", () => {
         return request(app)
