@@ -13,6 +13,7 @@ const seed = async (data) => {
     userGroupData,
   } = data;
 
+  await db.query(`DROP TRIGGER IF EXISTS new_event ON events`)
   await db.query(`DROP TABLE IF EXISTS userGroups;`);
   await db.query(`DROP TABLE IF EXISTS userGames;`);
   await db.query(`DROP TABLE IF EXISTS eventGames;`);

@@ -30,7 +30,8 @@ exports.postEvent = (req, res, next) => {
     .then((event) => {
       res.status(201).send({ event });
     })
-    .catch((err) => next(err));
+    .catch((err) => {
+      next(err)});
 };
 
 exports.patchEvent = (req, res, next) => {

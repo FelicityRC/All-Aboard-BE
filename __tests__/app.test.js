@@ -599,7 +599,7 @@ describe("POST", () => {
         return request(app)
           .post("/api/users")
           .send({
-            uid: 3,
+            uid: "3",
             username: "Facility",
             location: "Manchester",
           })
@@ -627,19 +627,20 @@ describe("POST", () => {
       });
     });
   });
-  describe("/api/events", () => {
+  describe.only("/api/events", () => {
     describe("Functionality", () => {
       it("status: 201, adds a new event and returns it", () => {
         return request(app)
           .post("/api/events")
           .send({
+            user_id: 1,
             title: "Be There or Be Square",
             longitude: "-2.983333",
             latitude: "53.400002",
             area: "Didsbury",
             date: "2021-01-18T00:00:00.000Z",
             start_time: "12:00:00",
-            organiser: 1,
+            max_players: 5
           })
           .expect(201)
           .then(({ body: { event } }) => {
@@ -647,17 +648,15 @@ describe("POST", () => {
               event_id: 3,
               title: "Be There or Be Square",
               description: null,
-              longitude: "-2.983333",
               latitude: "53.400002",
+              longitude: "-2.983333",
               area: "Didsbury",
               date: "2021-01-18T00:00:00.000Z",
               start_time: "12:00:00",
               duration: null,
-              organiser: 1,
-              guests: [],
-              games: [],
               visibility: true,
               willing_to_teach: false,
+              max_players: 5
             });
           });
       });

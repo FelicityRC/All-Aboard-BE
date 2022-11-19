@@ -119,19 +119,27 @@ exports.insertEvent = (body) => {
   if (!body) {
     return Promise.reject({ status: 400, msg: "Bad Request" });
   }
+
   if (
     !(
+      body.user_id &&
       body.title &&
       body.latitude &&
       body.longitude &&
       body.area &&
       body.date &&
-      body.start_time &&
-      body.organiser
+      body.start_time
     )
   ) {
     return Promise.reject({ status: 400, msg: "Missing Required Fields" });
   }
+  if (typeof body.user_id !== "number") {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
+
+  const user_id = body.user_id;
+  delete body.user_id;
+
   const validKeys = [
     "title",
     "latitude",
@@ -139,18 +147,35 @@ exports.insertEvent = (body) => {
     "area",
     "date",
     "start_time",
-    "organiser",
     "description",
     "duration",
-    "guests",
-    "games",
     "visibility",
     "willing_to_teach",
+    "max_players"
   ];
 
   const keys = Object.keys(body);
+  let functionString = `
+  CREATE OR REPLACE FUNCTION insert_event()
+      RETURNS TRIGGER
+      LANGUAGE PLPGSQL
+      AS
+  $$
+      BEGIN
+        INSERT INTO userEvents(event_id, user_id, organiser)
+        VALUES(NEW.event_id, ${user_id}, true);
+        RETURN NULL;
+      END;
+  $$;
+
+  CREATE OR REPLACE TRIGGER new_event
+  AFTER INSERT
+  on events
+  FOR EACH ROW
+  EXECUTE PROCEDURE insert_event();`;
 
   let queryString = `INSERT INTO events (`;
+
   for (const key of keys) {
     if (validKeys.includes(key)) {
       if (key === "guests" || key === "games") {
@@ -167,9 +192,11 @@ exports.insertEvent = (body) => {
   queryString = queryString.slice(0, -2);
   queryString += `) RETURNING *;`;
 
-  return db.query(queryString).then(({ rows: [event] }) => {
-    return event;
-  });
+  return db.query(functionString).then(() => {
+    return db.query(queryString);
+  }).then(({rows: [event]}) => {
+    return event
+  })
 };
 
 exports.updateEvent = (event_id, body) => {

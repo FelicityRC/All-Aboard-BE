@@ -1,7 +1,9 @@
 You are now connected to database "all_aboard" as user "chris".
- group_id |  name  |                                                        users                                                        
-----------+--------+---------------------------------------------------------------------------------------------------------------------
-        1 | catbus | [{"user_id": 1, "username": "BigJ", "organiser": true}, {"user_id": 2, "username": "Little J", "organiser": false}]
-        2 | buscat | [{"user_id": 1, "username": "BigJ", "organiser": false}, {"user_id": 2, "username": "Little J", "organiser": true}]
-(2 rows)
+CREATE FUNCTION
+CREATE TRIGGER
+ event_id |         title         | description | latitude  | longitude |   area   |    date    | start_time | duration | visibility | willing_to_teach | max_players 
+----------+-----------------------+-------------+-----------+-----------+----------+------------+------------+----------+------------+------------------+-------------
+       15 | Be There or Be Square |             | 53.400002 | -2.983333 | Didsbury | 2021-01-18 | 12:00:00   |          | t          | f                |            
+(1 row)
 
+INSERT 0 1
