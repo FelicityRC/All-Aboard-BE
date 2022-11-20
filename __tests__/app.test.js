@@ -691,6 +691,45 @@ describe("POST", () => {
           });
       });
     });
+
+    describe("Error Handling", () => {
+      it("returns error 400 when user Id entered in incorrect type", () => {
+        return request(app)
+          .post("/api/events/1/users")
+          .send({user_id: "Hello"})
+          .expect(400)
+          .then(({body}) => {
+            expect(body.msg).toBe("user_id must be a positive integer")
+          })
+      })
+      it("status: 404, user Id does not exist", () => {
+        return request(app)
+          .post("/api/events/1/users")
+          .send({user_id: 9999})
+          .expect(404)
+          .then(({body: {msg}}) => {
+            expect(msg).toBe("User Not Found")
+          })
+      })
+      it("returns error 400 when event Id entered in incorrect type", () => {
+        return request(app)
+          .post("/api/events/hello/users")
+          .send({user_id: 1})
+          .expect(400)
+          .then(({body}) => {
+            expect(body.msg).toBe("event_id must be a positive integer")
+          })
+      })
+      it("status: 404, user Id does not exist", () => {
+        return request(app)
+          .post("/api/events/9999/users")
+          .send({user_id: 1})
+          .expect(404)
+          .then(({body: {msg}}) => {
+            expect(msg).toBe("Event Not Found")
+          })
+      })
+    })
   });
 });
 

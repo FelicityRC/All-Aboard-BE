@@ -38,16 +38,17 @@ exports.postEvent = (req, res, next) => {
 
 exports.postUserToUserEvents = (req, res, next) => {
   const body = req.body;
-  const event_id = Number(req.params.event_id);
+  const event_id = req.params.event_id;
 
   const promises = [
     selectUserByUserId(body.user_id),
+    selectEventByEventId(event_id),
     insertUserToUserEvents(body.user_id, event_id)
   ]
 
   Promise.all(promises)
     .then((promises) => {
-      res.status(201).send({userEvent: promises[1]})
+      res.status(201).send({userEvent: promises[2]})
     }).catch(next);
 }
 

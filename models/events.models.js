@@ -200,6 +200,7 @@ exports.insertEvent = (body) => {
 };
 
 exports.insertUserToUserEvents = (user_id, event_id) => {
+
   return db.query(
     `
     INSERT INTO userEvents
