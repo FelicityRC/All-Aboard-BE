@@ -528,7 +528,7 @@ describe("GET", () => {
             groups.forEach((group) => {
               expect(group).toEqual(
                 expect.objectContaining({
-                  group_id:expect.any(Number),
+                  group_id: expect.any(Number),
                   name: expect.any(String),
                   users: expect.any(Array),
                 })
@@ -550,7 +550,7 @@ describe("GET", () => {
             expect(group).toEqual({
               group_id: 1,
               name: "catbus",
-              users: expect.any(Array)
+              users: expect.any(Array),
             });
           });
       });
@@ -640,7 +640,7 @@ describe("POST", () => {
             area: "Didsbury",
             date: "2021-01-18T00:00:00.000Z",
             start_time: "12:00:00",
-            max_players: 5
+            max_players: 5,
           })
           .expect(201)
           .then(({ body: { event } }) => {
@@ -656,7 +656,7 @@ describe("POST", () => {
               duration: null,
               visibility: true,
               willing_to_teach: false,
-              max_players: 5
+              max_players: 5,
             });
           });
       });
@@ -682,12 +682,13 @@ describe("PATCH", () => {
       it("status: 200, updates the values of a specified user and returns updated user", () => {
         return request(app)
           .patch("/api/users/1")
-          .send({ email: "newemail@email.com" })
+          .send({ username: "BIGj" })
           .expect(200)
           .then(({ body: { user } }) => {
             expect(user).toEqual({
               user_id: 1,
-              username: "BigJ",
+              uid: "1",
+              username: "BIGj",
               location: "Liverpool",
             });
           });
@@ -695,73 +696,48 @@ describe("PATCH", () => {
       it("status: 200, ignores extra keys on body", () => {
         return request(app)
           .patch("/api/users/1")
-          .send({ email: "newemail@email.com", something_else: "aaaahhh" })
+          .send({ location: "Somewhere else", something_else: "aaaahhh" })
           .expect(200)
           .then(({ body: { user } }) => {
             expect(user).toEqual({
               user_id: 1,
+              uid: "1",
               username: "BigJ",
-              name: "Joe",
-              email: "newemail@email.com",
-              location: "Liverpool",
-              fav_games: [1, 2, 3],
-              friends: [5],
+              location: "Somewhere else",
             });
           });
       });
-      it("status: 200, works with arrays", () => {
-        return request(app)
-          .patch("/api/users/1")
-          .send({ fav_games: [4, 5] })
-          .expect(200)
-          .then(({ body: { user } }) => {
-            expect(user).toEqual({
-              user_id: 1,
-              username: "BigJ",
-              name: "Joe",
-              email: "joefuller042@gmail.com",
-              location: "Liverpool",
-              fav_games: [4, 5],
-              friends: [5],
-            });
-          });
-      });
+      // it("status: 200, allows inc_games and inc_friends properties", () => {
+      //   return request(app)
+      //     .patch("/api/users/1")
+      //     .send({ inc_games: [4], inc_friends: [1, 2] })
+      //     .expect(200)
+      //     .then(({ body: { user } }) => {
+      //       expect(user).toEqual({
+      //         user_id: 1,
+      //         username: "BigJ",
+      //         location: "Liverpool",
+      //       });
+      //     });
+      // });
 
-      it("status: 200, allows inc_games and inc_friends properties", () => {
-        return request(app)
-          .patch("/api/users/1")
-          .send({ inc_games: [4], inc_friends: [1, 2] })
-          .expect(200)
-          .then(({ body: { user } }) => {
-            expect(user).toEqual({
-              user_id: 1,
-              username: "BigJ",
-              name: "Joe",
-              email: "joefuller042@gmail.com",
-              location: "Liverpool",
-              fav_games: [1, 2, 3, 4],
-              friends: [5, 1, 2],
-            });
-          });
-      });
-
-      it("status: 200, allows out_games and out_friends properties", () => {
-        return request(app)
-          .patch("/api/users/1")
-          .send({ out_games: [2, 1], out_friends: [5] })
-          .expect(200)
-          .then(({ body: { user } }) => {
-            expect(user).toEqual({
-              user_id: 1,
-              username: "BigJ",
-              name: "Joe",
-              email: "joefuller042@gmail.com",
-              location: "Liverpool",
-              fav_games: [3],
-              friends: [],
-            });
-          });
-      });
+      // it("status: 200, allows out_games and out_friends properties", () => {
+      //   return request(app)
+      //     .patch("/api/users/1")
+      //     .send({ out_games: [2, 1], out_friends: [5] })
+      //     .expect(200)
+      //     .then(({ body: { user } }) => {
+      //       expect(user).toEqual({
+      //         user_id: 1,
+      //         username: "BigJ",
+      //         name: "Joe",
+      //         email: "joefuller042@gmail.com",
+      //         location: "Liverpool",
+      //         fav_games: [3],
+      //         friends: [],
+      //       });
+      //     });
+      // });
     });
 
     describe("Error Handling", () => {
@@ -778,7 +754,7 @@ describe("PATCH", () => {
       it("status: 400, invalid user_id", () => {
         return request(app)
           .patch("/api/users/cat")
-          .send({ email: "newemail@email.com" })
+          .send({ username: "newName" })
           .expect(400)
           .then(({ body: { msg } }) => {
             expect(msg).toBe("user_id must be a positive integer");
@@ -788,7 +764,7 @@ describe("PATCH", () => {
       it("status: 404, user_id not found", () => {
         return request(app)
           .patch("/api/users/99999")
-          .send({ email: "newemail@email.com" })
+          .send({ username: "testName" })
           .expect(404)
           .then(({ body: { msg } }) => {
             expect(msg).toBe("User Not Found");

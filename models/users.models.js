@@ -88,15 +88,9 @@ exports.updateUser = (user_id, body) => {
 
   const validKeys = [
     "username",
-    "name",
-    "email",
     "location",
-    "fav_games",
-    "friends",
     "inc_games",
-    "inc_friends",
     "out_games",
-    "out_friends",
   ];
 
   const keys = Object.keys(body);
@@ -105,31 +99,15 @@ exports.updateUser = (user_id, body) => {
 
   for (const key of keys) {
     if (validKeys.includes(key)) {
-      if (key === "fav_games" || key === "friends") {
-        queryString += `${key}='{${body[key]}}', `;
-      } else if (key === "inc_games") {
-        queryString += `fav_games=ARRAY_CAT(fav_games, ARRAY[${body["inc_games"]}]), `;
-      } else if (key === "inc_friends") {
-        queryString += `friends=ARRAY_CAT(friends, ARRAY[${body["inc_friends"]}]), `;
-      } else if (key === "out_games") {
-        queryString += `fav_games=(SELECT ARRAY(SELECT UNNEST(fav_games) EXCEPT SELECT UNNEST('{${body["out_games"]}}'::INT[]))), `;
-      } else if (key === "out_friends") {
-        queryString += `friends=(SELECT ARRAY(SELECT UNNEST(friends) EXCEPT SELECT UNNEST('{${body["out_friends"]}}'::INT[]))), `;
-      } else {
         queryString += `${key}='${body[key]}', `;
       }
     }
-  }
 
   queryString = queryString.slice(0, -2);
-  queryString += ` WHERE user_id=${user_id} RETURNING *`;
+  queryString += ` WHERE user_id=$1 RETURNING *`;
 
-  return db.query(queryString).then(({ rows: [user] }) => {
-    if (user) {
-      return user;
-    } else {
-      return Promise.reject({ status: 404, msg: "User Not Found" });
-    }
+  return db.query(queryString,[user_id]).then(({ rows: [user] }) => {
+    return user
   });
 };
 

@@ -36,11 +36,14 @@ exports.patchUser = (req, res, next) => {
   const user_id = req.params.user_id;
   const body = req.body;
 
-  updateUser(user_id, body)
-    .then((user) => {
-      res.status(200).send({ user });
-    })
-    .catch((err) => next(err));
+  const promises = [
+    selectUserByUserId(user_id),
+    updateUser(user_id, body)
+  ]
+
+  Promise.all(promises).then((promises) => {
+    res.status(200).send({user: promises[1]})
+  }).catch((err) => next(err))
 };
 
 exports.getGamesByUserId = (req, res, next) => {
