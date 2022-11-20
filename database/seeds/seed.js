@@ -13,6 +13,7 @@ const seed = async (data) => {
     userGroupData,
   } = data;
 
+  await db.query(`DROP TRIGGER IF EXISTS event_games_delete ON events`)
   await db.query(`DROP TRIGGER IF EXISTS delete_event ON events`)
   await db.query(`DROP TRIGGER IF EXISTS new_event ON events`)
   await db.query(`DROP TABLE IF EXISTS userGroups;`);
@@ -99,7 +100,7 @@ const seed = async (data) => {
         )`);
 
   await db.query(`
-          CREATE OR REPLACE FUNCTION delete_event()
+          CREATE OR REPLACE FUNCTION delete_event_from_userEvents()
             RETURNS TRIGGER
             LANGUAGE PLPGSQL
             AS
@@ -113,11 +114,33 @@ const seed = async (data) => {
   `)
 
   await db.query(`
+  CREATE OR REPLACE FUNCTION delete_event_from_eventGames()
+    RETURNS TRIGGER
+    LANGUAGE PLPGSQL
+    AS
+  $$
+    BEGIN
+      DELETE FROM eventGames
+      WHERE event_id = OLD.event_id;
+      RETURN NULL;
+    END;
+  $$;
+`)
+
+  await db.query(`
   CREATE OR REPLACE TRIGGER event_delete
   AFTER DELETE
   on events
   FOR EACH ROW
-  EXECUTE PROCEDURE delete_event();
+  EXECUTE PROCEDURE delete_event_from_userEvents();
+  `)
+
+  await db.query(`
+        CREATE OR REPLACE TRIGGER event_games_delete
+        AFTER DELETE
+        on events
+        FOR EACH ROW
+        EXECUTE PROCEDURE delete_event_from_eventGames();
   `)
 
   const insertUsersQueryStr = format(
