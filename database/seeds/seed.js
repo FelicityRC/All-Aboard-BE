@@ -13,6 +13,7 @@ const seed = async (data) => {
     userGroupData,
   } = data;
 
+  await db.query(`DROP TRIGGER IF EXISTS delete_event ON events`)
   await db.query(`DROP TRIGGER IF EXISTS new_event ON events`)
   await db.query(`DROP TABLE IF EXISTS userGroups;`);
   await db.query(`DROP TABLE IF EXISTS userGames;`);
@@ -70,32 +71,54 @@ const seed = async (data) => {
   await db.query(`
         CREATE TABLE userEvents (
           userEvents_id SERIAL PRIMARY KEY NOT NULL,
-          user_id INT REFERENCES users(user_id) NOT NULL,
-          event_id INT REFERENCES events(event_id) NOT NULL,
+          user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+          event_id INT REFERENCES events(event_id) ON DELETE CASCADE,
           organiser BOOLEAN NOT NULL
         )`);
 
   await db.query(`
         CREATE TABLE eventGames (
           eventGames_id SERIAL PRIMARY KEY NOT NULL,
-          event_id INT REFERENCES events(event_id) NOT NULL,
-          game_id INT REFERENCES games(game_id) NOT NULL
+          event_id INT REFERENCES events(event_id) ON DELETE CASCADE,
+          game_id INT REFERENCES games(game_id) ON DELETE CASCADE
         )`);
 
   await db.query(`
         CREATE TABLE userGames (
           userGames_id SERIAL PRIMARY KEY NOT NULL,
-          user_id INT REFERENCES users(user_id) NOT NULL,
-          game_id INT REFERENCES games(game_id) NOT NULL
+          user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+          game_id INT REFERENCES games(game_id) ON DELETE CASCADE
         )`);
 
   await db.query(`
         CREATE TABLE userGroups (
           userGroups_id SERIAL PRIMARY KEY NOT NULL,
-          user_id INT REFERENCES users(user_id) NOT NULL,
-          group_id INT REFERENCES groups(group_id) NOT NULL,
+          user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+          group_id INT REFERENCES groups(group_id) ON DELETE CASCADE,
           organiser BOOLEAN NOT NULL
         )`);
+
+  await db.query(`
+          CREATE OR REPLACE FUNCTION delete_event()
+            RETURNS TRIGGER
+            LANGUAGE PLPGSQL
+            AS
+          $$
+            BEGIN
+              DELETE FROM userEvents
+              WHERE event_id = OLD.event_id;
+              RETURN NULL;
+            END;
+          $$;
+  `)
+
+  await db.query(`
+  CREATE OR REPLACE TRIGGER event_delete
+  AFTER DELETE
+  on events
+  FOR EACH ROW
+  EXECUTE PROCEDURE delete_event();
+  `)
 
   const insertUsersQueryStr = format(
     "INSERT INTO users (uid, username, location ) VALUES %L RETURNING *;",

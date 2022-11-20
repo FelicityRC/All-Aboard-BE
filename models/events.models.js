@@ -222,15 +222,9 @@ exports.updateEvent = (event_id, body) => {
     "date",
     "start_time",
     "duration",
-    "organiser",
-    "guest",
-    "games",
     "visibility",
     "willing_to_teach",
-    "inc_games",
-    "inc_guests",
-    "out_games",
-    "out_guests",
+    "max_players"
   ];
 
   const keys = Object.keys(body);
@@ -239,21 +233,9 @@ exports.updateEvent = (event_id, body) => {
 
   for (const key of keys) {
     if (validKeys.includes(key)) {
-      if (key === "games" || key === "guests") {
-        queryString += `${key}='{${body[key]}}', `;
-      } else if (key === "inc_games") {
-        queryString += `games=ARRAY_CAT(games, ARRAY[${body["inc_games"]}]), `;
-      } else if (key === "inc_guests") {
-        queryString += `guests=ARRAY_CAT(guests, ARRAY[${body["inc_guests"]}]), `;
-      } else if (key === "out_games") {
-        queryString += `games=(SELECT ARRAY(SELECT UNNEST(games) EXCEPT SELECT UNNEST('{${body["out_games"]}}'::INT[]))), `;
-      } else if (key === "out_guests") {
-        queryString += `guests=(SELECT ARRAY(SELECT UNNEST(guests) EXCEPT SELECT UNNEST('{${body["out_guests"]}}'::INT[]))), `;
-      } else {
         queryString += `${key}='${body[key]}', `;
       }
     }
-  }
 
   queryString = queryString.slice(0, -2);
   queryString += ` WHERE event_id=${event_id} RETURNING *`;
