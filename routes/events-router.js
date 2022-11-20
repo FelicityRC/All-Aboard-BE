@@ -8,6 +8,7 @@ const {
   postEvent,
   patchEvent,
   deleteEvent,
+  postUserToUserEvents,
 } = require("../controllers/events.controllers");
 
 eventRouter.route("/").get(getEvents).post(postEvent);
@@ -17,7 +18,11 @@ eventRouter
   .patch(patchEvent)
   .delete(deleteEvent);
 
-eventRouter.get("/:event_id/users", getUsersByEventId);
+eventRouter
+  .route("/:event_id/users")
+  .get(getUsersByEventId)
+  .post(postUserToUserEvents);
+  
 eventRouter.get("/:event_id/games", getGamesByEventId);
 
 module.exports = eventRouter;

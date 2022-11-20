@@ -674,6 +674,24 @@ describe("POST", () => {
       });
     });
   });
+  describe.only("/api/events/:event_id/users", () => {
+    describe("Functionality", () => {
+      it("inserts a new user into userEvents", () => {
+        return request(app)
+          .post("/api/events/1/users")
+          .send({ user_id: 1 })
+          .expect(201)
+          .then(({ body: { userEvent } }) => {
+            expect(userEvent).toEqual({
+              event_id: 1,
+              organiser: false,
+              user_id: 1,
+              userevents_id: 5,
+            });
+          });
+      });
+    });
+  });
 });
 
 describe("PATCH", () => {
@@ -793,7 +811,7 @@ describe("PATCH", () => {
               duration: 120,
               visibility: true,
               willing_to_teach: false,
-              max_players: 5
+              max_players: 5,
             });
           });
       });
@@ -816,7 +834,7 @@ describe("PATCH", () => {
               duration: 120,
               visibility: false,
               willing_to_teach: false,
-              max_players: 5
+              max_players: 5,
             });
           });
       });

@@ -199,6 +199,20 @@ exports.insertEvent = (body) => {
   })
 };
 
+exports.insertUserToUserEvents = (user_id, event_id) => {
+  return db.query(
+    `
+    INSERT INTO userEvents
+    (user_id, event_id, organiser)
+    VALUES
+    ($1, $2, false)
+    RETURNING *;
+    `, [user_id, event_id]
+  ).then(({rows: [userEvent]}) => {
+    return userEvent;
+  })
+}
+
 exports.updateEvent = (event_id, body) => {
   // this checks the user_id is a positive integer
   const num = Number(event_id);

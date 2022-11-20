@@ -6,7 +6,9 @@ const {
   selectUsersByEventId,
   selectGamesByEventId,
   removeEvent,
+  insertUserToUserEvents,
 } = require("../models/events.models");
+const { selectUserByUserId } = require("../models/users.models");
 
 exports.getEvents = (req, res, next) => {
   selectEvents().then((events) => {
@@ -33,6 +35,21 @@ exports.postEvent = (req, res, next) => {
     .catch((err) => {
       next(err)});
 };
+
+exports.postUserToUserEvents = (req, res, next) => {
+  const body = req.body;
+  const event_id = Number(req.params.event_id);
+
+  const promises = [
+    selectUserByUserId(body.user_id),
+    insertUserToUserEvents(body.user_id, event_id)
+  ]
+
+  Promise.all(promises)
+    .then((promises) => {
+      res.status(201).send({userEvent: promises[1]})
+    }).catch(next);
+}
 
 exports.patchEvent = (req, res, next) => {
   const event_id = req.params.event_id;
@@ -81,3 +98,4 @@ exports.deleteEvent = (req, res, next) => {
     })
     .catch((err) => next(err));
 };
+
