@@ -731,6 +731,63 @@ describe("POST", () => {
       })
     })
   });
+  describe.only("/api/groups/:group_id/users", () => {
+    describe("Functionality", () => {
+      it("inserts a new user into userGroups", () => {
+        return request(app)
+          .post("/api/groups/1/users")
+          .send({ user_id: 1 })
+          .expect(201)
+          .then(({ body: {userGroup} }) => {
+            expect(userGroup).toEqual({
+              group_id: 1,
+              organiser: false,
+              user_id: 1,
+              usergroups_id: 5,
+            });
+          });
+      });
+    });
+
+    describe("Error Handling", () => {
+      it("returns error 400 when user Id entered in incorrect type", () => {
+        return request(app)
+          .post("/api/groups/1/users")
+          .send({user_id: "Hello"})
+          .expect(400)
+          .then(({body}) => {
+            expect(body.msg).toBe("user_id must be a positive integer")
+          })
+      })
+      it("status: 404, user Id does not exist", () => {
+        return request(app)
+          .post("/api/groups/1/users")
+          .send({user_id: 9999})
+          .expect(404)
+          .then(({body: {msg}}) => {
+            expect(msg).toBe("User Not Found")
+          })
+      })
+      it("returns error 400 when group Id entered in incorrect type", () => {
+        return request(app)
+          .post("/api/groups/hello/users")
+          .send({user_id: 1})
+          .expect(400)
+          .then(({body}) => {
+            expect(body.msg).toBe("group_id must be a positive integer")
+          })
+      })
+      it("status: 404, group Id does not exist", () => {
+        return request(app)
+          .post("/api/groups/9999/users")
+          .send({user_id: 1})
+          .expect(404)
+          .then(({body: {msg}}) => {
+            expect(msg).toBe("Group Not Found")
+          })
+      })
+    })
+  });
 });
 
 describe("PATCH", () => {

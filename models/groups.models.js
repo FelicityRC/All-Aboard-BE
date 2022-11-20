@@ -51,3 +51,19 @@ exports.selectGroupByGroupId = (group_id) => {
       }
     });
 };
+
+exports.insertUserToUserGroups = (user_id, group_id) => {
+
+  return db.query(
+    `
+    INSERT INTO userGroups
+    (user_id, group_id, organiser)
+    VALUES
+    ($1, $2, false)
+    RETURNING *;
+    `, [user_id, group_id]
+  ).then(({rows: [userGroup]}) => {
+    console.log(userGroup)
+    return userGroup;
+  })
+}
