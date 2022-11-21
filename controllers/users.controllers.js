@@ -5,7 +5,10 @@ const {
   updateUser,
   selectGamesByUserId,
   selectEventsByUserId,
+  insertGameToUserGames,
+  checkUser
 } = require("../models/users.models");
+const {selectGameByGameId} = require("../models/games.models")
 
 exports.getUsers = (req, res, next) => {
   selectUsers().then((users) => {
@@ -32,12 +35,29 @@ exports.postUser = (req, res, next) => {
     .catch((err) => next(err));
 };
 
+exports.postGameToUserGames = (req, res, next) => {
+  const body = req.body;
+  const user_id = req.params.user_id;
+
+  const promises = [
+    selectGameByGameId(body.game_id),
+    checkUser(user_id),
+    insertGameToUserGames(body.game_id, user_id),
+  ];
+
+  Promise.all(promises)
+    .then((promises) => {
+      res.status(201).send({ userGame: promises[2] });
+    })
+    .catch(next);
+};
+
 exports.patchUser = (req, res, next) => {
   const user_id = req.params.user_id;
   const body = req.body;
 
   const promises = [
-    selectUserByUserId(user_id),
+    checkUser(user_id),
     updateUser(user_id, body)
   ]
 
@@ -50,7 +70,7 @@ exports.getGamesByUserId = (req, res, next) => {
   const user_id = req.params.user_id;
 
   const promises = [
-    selectUserByUserId(user_id),
+    checkUser(user_id),
     selectGamesByUserId(user_id)
   ]
 

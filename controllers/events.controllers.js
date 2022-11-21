@@ -7,7 +7,10 @@ const {
   selectGamesByEventId,
   removeEvent,
   insertUserToUserEvents,
+  insertGameToEventGames,
+  checkEvent,
 } = require("../models/events.models");
+const { selectGameByGameId } = require("../models/games.models");
 const { selectUserByUserId } = require("../models/users.models");
 
 exports.getEvents = (req, res, next) => {
@@ -33,7 +36,8 @@ exports.postEvent = (req, res, next) => {
       res.status(201).send({ event });
     })
     .catch((err) => {
-      next(err)});
+      next(err);
+    });
 };
 
 exports.postUserToUserEvents = (req, res, next) => {
@@ -42,15 +46,33 @@ exports.postUserToUserEvents = (req, res, next) => {
 
   const promises = [
     selectUserByUserId(body.user_id),
-    selectEventByEventId(event_id),
-    insertUserToUserEvents(body.user_id, event_id)
-  ]
+    checkEvent(event_id),
+    insertUserToUserEvents(body.user_id, event_id),
+  ];
 
   Promise.all(promises)
     .then((promises) => {
-      res.status(201).send({userEvent: promises[2]})
-    }).catch(next);
-}
+      res.status(201).send({ userEvent: promises[2] });
+    })
+    .catch(next);
+};
+
+exports.postGameToEventGames = (req, res, next) => {
+  const body = req.body;
+  const event_id = req.params.event_id;
+  
+  const promises = [
+    selectGameByGameId(body.game_id),
+    checkEvent(event_id),
+    insertGameToEventGames(body.game_id, event_id),
+  ];
+
+  Promise.all(promises)
+    .then((promises) => {
+      res.status(201).send({ eventGame: promises[2] });
+    })
+    .catch(next);
+};
 
 exports.patchEvent = (req, res, next) => {
   const event_id = req.params.event_id;
@@ -68,27 +90,29 @@ exports.getUsersByEventId = (req, res, next) => {
 
   const promises = [
     selectEventByEventId(event_id),
-    selectUsersByEventId(event_id)
-  ]
-  
+    selectUsersByEventId(event_id),
+  ];
+
   Promise.all(promises)
     .then((promises) => {
-      res.status(200).send({users: promises[1]})
-    }).catch(next);
+      res.status(200).send({ users: promises[1] });
+    })
+    .catch(next);
 };
 
 exports.getGamesByEventId = (req, res, next) => {
   const event_id = req.params.event_id;
-  
+
   const promises = [
-    selectEventByEventId(event_id),
-    selectGamesByEventId(event_id)
-  ]
+    checkEvent(event_id),
+    selectGamesByEventId(event_id),
+  ];
 
   Promise.all(promises)
     .then((promises) => {
-      res.status(200).send({games: promises[1]})
-    }).catch(next);
+      res.status(200).send({ games: promises[1] });
+    })
+    .catch(next);
 };
 
 exports.deleteEvent = (req, res, next) => {
@@ -99,4 +123,3 @@ exports.deleteEvent = (req, res, next) => {
     })
     .catch((err) => next(err));
 };
-

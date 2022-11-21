@@ -151,7 +151,7 @@ exports.insertEvent = (body) => {
     "duration",
     "visibility",
     "willing_to_teach",
-    "max_players"
+    "max_players",
   ];
 
   const keys = Object.keys(body);
@@ -192,27 +192,49 @@ exports.insertEvent = (body) => {
   queryString = queryString.slice(0, -2);
   queryString += `) RETURNING *;`;
 
-  return db.query(functionString).then(() => {
-    return db.query(queryString);
-  }).then(({rows: [event]}) => {
-    return event
-  })
+  return db
+    .query(functionString)
+    .then(() => {
+      return db.query(queryString);
+    })
+    .then(({ rows: [event] }) => {
+      return event;
+    });
 };
 
 exports.insertUserToUserEvents = (user_id, event_id) => {
-
-  return db.query(
-    `
+  return db
+    .query(
+      `
     INSERT INTO userEvents
     (user_id, event_id, organiser)
     VALUES
     ($1, $2, false)
     RETURNING *;
-    `, [user_id, event_id]
-  ).then(({rows: [userEvent]}) => {
-    return userEvent;
-  })
-}
+    `,
+      [user_id, event_id]
+    )
+    .then(({ rows: [userEvent] }) => {
+      return userEvent;
+    });
+};
+
+exports.insertGameToEventGames = (game_id, event_id) => {
+  return db
+    .query(
+      `
+      INSERT INTO eventGames
+      (game_id, event_id)
+      VALUES
+      ($1, $2)
+      RETURNING *;
+      `,
+      [game_id, event_id]
+    )
+    .then(({ rows: [eventGame] }) => {
+      return eventGame;
+    });
+};
 
 exports.updateEvent = (event_id, body) => {
   // this checks the user_id is a positive integer
@@ -239,7 +261,7 @@ exports.updateEvent = (event_id, body) => {
     "duration",
     "visibility",
     "willing_to_teach",
-    "max_players"
+    "max_players",
   ];
 
   const keys = Object.keys(body);
@@ -248,9 +270,9 @@ exports.updateEvent = (event_id, body) => {
 
   for (const key of keys) {
     if (validKeys.includes(key)) {
-        queryString += `${key}='${body[key]}', `;
-      }
+      queryString += `${key}='${body[key]}', `;
     }
+  }
 
   queryString = queryString.slice(0, -2);
   queryString += ` WHERE event_id=${event_id} RETURNING *`;
@@ -282,3 +304,24 @@ exports.removeEvent = (event_id) => {
       return;
     });
 };
+
+exports.checkEvent = (event_id) => {
+  const num = Number(event_id);
+  if (!(Number.isInteger(num) && num > 0)) {
+    return Promise.reject({
+      status: 400,
+      msg: "event_id must be a positive integer",
+    });
+  };
+
+  return db.query(
+    `
+    SELECT * FROM events
+    WHERE event_id = $1;
+    `, [event_id]
+  ).then(({rows: [event]}) => {
+    if (!event) {
+      return Promise.reject({status: 404, msg: "Event Not Found"})
+    }
+  })
+}

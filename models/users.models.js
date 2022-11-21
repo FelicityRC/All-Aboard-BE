@@ -72,6 +72,21 @@ exports.insertUser = (body) => {
     });
 };
 
+exports.insertGameToUserGames = (game_id, user_id) => {
+
+  return db.query(
+    `
+    INSERT INTO userGames
+    (game_id, user_id)
+    VALUES
+    ($1, $2)
+    RETURNING *;
+    `, [game_id, user_id]
+  ).then(({rows: [userGame]}) => {
+    return userGame;
+  })
+}
+
 exports.updateUser = (user_id, body) => {
   // this checks the user_id is a positive integer
   const num = Number(user_id);
@@ -151,3 +166,24 @@ exports.selectEventsByUserId = (user_id) => {
       return events;
     });
 };
+
+exports.checkUser = (user_id) => {
+  const num = Number(user_id);
+  if (!(Number.isInteger(num) && num > 0)) {
+    return Promise.reject({
+      status: 400,
+      msg: "user_id must be a positive integer",
+    });
+  };
+
+  return db.query(
+    `
+    SELECT * FROM users
+    WHERE user_id = $1
+    `, [user_id]
+  ).then(({rows: [user]}) => {
+    if (!user) {
+      return Promise.reject({status: 404, msg: "User Not Found"})
+    }
+  })
+}

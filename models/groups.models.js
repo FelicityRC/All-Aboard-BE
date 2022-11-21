@@ -63,7 +63,6 @@ exports.insertUserToUserGroups = (user_id, group_id) => {
     RETURNING *;
     `, [user_id, group_id]
   ).then(({rows: [userGroup]}) => {
-    console.log(userGroup)
     return userGroup;
   })
 }
