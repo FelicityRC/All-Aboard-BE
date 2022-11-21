@@ -7,11 +7,9 @@ module.exports = [
     date: new Date(1610964545410),
     start_time: "14:30:00",
     duration: 120,
-    organiser: 1,
-    guests: [1, 2],
-    games: [1, 2, 3],
     visibility: true,
     willing_to_teach: true,
+    max_players: 5
   },
   {
     title: "Liverpool MeetUp",
@@ -21,10 +19,8 @@ module.exports = [
     date: new Date(1610964545410),
     start_time: "14:30:00",
     duration: 120,
-    organiser: 2,
-    guests: [1, 2],
-    games: [4, 5, 6],
     visibility: true,
     willing_to_teach: false,
+    max_players: 5
   },
 ];

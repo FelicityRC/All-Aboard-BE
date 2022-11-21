@@ -37,9 +37,8 @@ describe("GET", () => {
             users.forEach((user) => {
               expect(user).toEqual(
                 expect.objectContaining({
+                  uid: expect.any(String),
                   username: expect.any(String),
-                  name: expect.any(String),
-                  email: expect.any(String),
                   location: expect.any(String),
                 })
               );
@@ -58,12 +57,12 @@ describe("GET", () => {
             expect(user).toBeInstanceOf(Object);
             expect(user).toEqual({
               user_id: 1,
+              uid: expect.any(String),
               username: "BigJ",
-              name: "Joe",
-              email: "joefuller042@gmail.com",
               location: "Liverpool",
-              friends: [5],
-              fav_games: [1, 2, 3],
+              games: expect.any(Array),
+              groups: expect.any(Array),
+              events: expect.any(Array),
             });
           });
       });
@@ -180,11 +179,11 @@ describe("GET", () => {
                   longitude: expect.any(String),
                   area: expect.any(String),
                   date: expect.any(String),
-                  organiser: expect.any(Number),
+                  start_time: expect.any(String),
+                  duration: expect.any(Number),
                   visibility: expect.any(Boolean),
                   willing_to_teach: expect.any(Boolean),
-                  guests: expect.any(Array),
-                  games: expect.any(Array),
+                  max_players: expect.any(Number),
                 })
               );
             });
@@ -218,6 +217,7 @@ describe("GET", () => {
       });
     });
   });
+
   describe("/api/games", () => {
     describe("Functionality", () => {
       it("status: 200, responds with an array of games", () => {
@@ -309,6 +309,7 @@ describe("GET", () => {
           .expect(200)
           .then(({ body: { events } }) => {
             expect(events).toBeInstanceOf(Array);
+            expect(events).toHaveLength(2);
             events.forEach((event) => {
               expect(event).toEqual(
                 expect.objectContaining({
@@ -321,9 +322,12 @@ describe("GET", () => {
                   date: expect.any(String),
                   start_time: expect.any(String),
                   duration: expect.any(Number),
-                  organiser: expect.any(Number),
                   visibility: expect.any(Boolean),
                   willing_to_teach: expect.any(Boolean),
+                  max_players: expect.any(Number),
+                  games: expect.any(Array),
+                  guests: expect.any(Number),
+                  organiser: expect.any(String),
                 })
               );
             });
@@ -349,11 +353,12 @@ describe("GET", () => {
               date: expect.any(String),
               start_time: "14:30:00",
               duration: 120,
-              organiser: 2,
               visibility: true,
               willing_to_teach: false,
-              games: [15, 27],
-              guests: [1, 2],
+              games: ["azul", "gloomhaven", "terraforming-mars"],
+              guests: expect.any(Array),
+              max_players: 5,
+              organiser: "Little J",
             });
           });
       });
@@ -404,9 +409,9 @@ describe("GET", () => {
             users.forEach((user) => {
               expect(user).toEqual(
                 expect.objectContaining({
+                  user_id: expect.any(Number),
+                  uid: expect.any(String),
                   username: expect.any(String),
-                  name: expect.any(String),
-                  email: expect.any(String),
                   location: expect.any(String),
                 })
               );
@@ -523,10 +528,9 @@ describe("GET", () => {
             groups.forEach((group) => {
               expect(group).toEqual(
                 expect.objectContaining({
+                  group_id: expect.any(Number),
                   name: expect.any(String),
-                  organiser: expect.any(Number),
                   users: expect.any(Array),
-                  events: expect.any(Array),
                 })
               );
             });
@@ -546,9 +550,7 @@ describe("GET", () => {
             expect(group).toEqual({
               group_id: 1,
               name: "catbus",
-              organiser: 1,
-              users: [1, 2],
-              events: [2],
+              users: expect.any(Array),
             });
           });
       });
@@ -588,62 +590,6 @@ describe("GET", () => {
       });
     });
   });
-  describe("/api/groups/:group_id/users", () => {
-    describe("Functionality", () => {
-      it("status: 200, responds with an array of users that are members of the specified group", () => {
-        return request(app)
-          .get("/api/groups/2/users")
-          .expect(200)
-          .then(({ body: { users } }) => {
-            expect(users).toBeInstanceOf(Array);
-            users.forEach((user) => {
-              expect(user).toEqual(
-                expect.objectContaining({
-                  username: expect.any(String),
-                  name: expect.any(String),
-                  email: expect.any(String),
-                  location: expect.any(String),
-                })
-              );
-            });
-          });
-      });
-    });
-    describe("Error Handling", () => {
-      it("status: 400, Bad Request", () => {
-        return request(app)
-          .get("/api/groups/hello/users")
-          .expect(400)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe("group_id must be a positive integer");
-          });
-      });
-      it("status: 400, Bad Request", () => {
-        return request(app)
-          .get("/api/groups/-50/users")
-          .expect(400)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe("group_id must be a positive integer");
-          });
-      });
-      it("status: 400, Bad Request", () => {
-        return request(app)
-          .get("/api/groups/10.5/users")
-          .expect(400)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe("group_id must be a positive integer");
-          });
-      });
-      it("status: 404, Not Found", () => {
-        return request(app)
-          .get("/api/groups/999/users")
-          .expect(404)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe("Group Not Found");
-          });
-      });
-    });
-  });
 });
 
 describe("POST", () => {
@@ -653,21 +599,17 @@ describe("POST", () => {
         return request(app)
           .post("/api/users")
           .send({
+            uid: "3",
             username: "Facility",
-            name: "Felicity",
-            email: "fbomb@hotmail.co.uk",
             location: "Manchester",
           })
           .expect(201)
           .then(({ body: { user } }) => {
             expect(user).toEqual({
+              uid: "3",
               user_id: 3,
               username: "Facility",
-              name: "Felicity",
-              email: "fbomb@hotmail.co.uk",
               location: "Manchester",
-              fav_games: [],
-              friends: [],
             });
           });
       });
@@ -685,19 +627,77 @@ describe("POST", () => {
       });
     });
   });
+  
+  describe("/api/users/:user_id/games", () => {
+    describe("Functionality", () => {
+      it("inserts a new game into userGames", () => {
+        return request(app)
+          .post("/api/users/1/games")
+          .send({ game_id: 5 })
+          .expect(201)
+          .then(({ body: { userGame } }) => {
+            expect(userGame).toEqual({
+              user_id: 1,
+              game_id: 5,
+              usergames_id: 7,
+            });
+          });
+      });
+    });
+
+    describe("Error Handling", () => {
+      it("returns error 400 when game Id entered in incorrect type", () => {
+        return request(app)
+          .post("/api/users/1/games")
+          .send({game_id: "Hello"})
+          .expect(400)
+          .then(({body}) => {
+            expect(body.msg).toBe("game_id must be a positive integer")
+          })
+      })
+      it("status: 404, game Id does not exist", () => {
+        return request(app)
+          .post("/api/users/1/games")
+          .send({game_id: 99999})
+          .expect(404)
+          .then(({body: {msg}}) => {
+            expect(msg).toBe("Game Not Found")
+          })
+      })
+      it("returns error 400 when user Id entered in incorrect type", () => {
+        return request(app)
+          .post("/api/users/hello/games")
+          .send({game_id: 1})
+          .expect(400)
+          .then(({body}) => {
+            expect(body.msg).toBe("user_id must be a positive integer")
+          })
+      })
+      it("status: 404, user Id does not exist", () => {
+        return request(app)
+          .post("/api/users/9999/games")
+          .send({game_id: 1})
+          .expect(404)
+          .then(({body: {msg}}) => {
+            expect(msg).toBe("User Not Found")
+          })
+      })
+    })
+  })
   describe("/api/events", () => {
     describe("Functionality", () => {
       it("status: 201, adds a new event and returns it", () => {
         return request(app)
           .post("/api/events")
           .send({
+            user_id: 1,
             title: "Be There or Be Square",
             longitude: "-2.983333",
             latitude: "53.400002",
             area: "Didsbury",
             date: "2021-01-18T00:00:00.000Z",
             start_time: "12:00:00",
-            organiser: 1,
+            max_players: 5,
           })
           .expect(201)
           .then(({ body: { event } }) => {
@@ -705,17 +705,15 @@ describe("POST", () => {
               event_id: 3,
               title: "Be There or Be Square",
               description: null,
-              longitude: "-2.983333",
               latitude: "53.400002",
+              longitude: "-2.983333",
               area: "Didsbury",
               date: "2021-01-18T00:00:00.000Z",
               start_time: "12:00:00",
               duration: null,
-              organiser: 1,
-              guests: [],
-              games: [],
               visibility: true,
               willing_to_teach: false,
+              max_players: 5,
             });
           });
       });
@@ -733,6 +731,176 @@ describe("POST", () => {
       });
     });
   });
+  describe("/api/events/:event_id/users", () => {
+    describe("Functionality", () => {
+      it("inserts a new user into userEvents", () => {
+        return request(app)
+          .post("/api/events/1/users")
+          .send({ user_id: 1 })
+          .expect(201)
+          .then(({ body: { userEvent } }) => {
+            expect(userEvent).toEqual({
+              event_id: 1,
+              organiser: false,
+              user_id: 1,
+              userevents_id: 5,
+            });
+          });
+      });
+    });
+
+    describe("Error Handling", () => {
+      it("returns error 400 when user Id entered in incorrect type", () => {
+        return request(app)
+          .post("/api/events/1/users")
+          .send({user_id: "Hello"})
+          .expect(400)
+          .then(({body}) => {
+            expect(body.msg).toBe("user_id must be a positive integer")
+          })
+      })
+      it("status: 404, user Id does not exist", () => {
+        return request(app)
+          .post("/api/events/1/users")
+          .send({user_id: 9999})
+          .expect(404)
+          .then(({body: {msg}}) => {
+            expect(msg).toBe("User Not Found")
+          })
+      })
+      it("returns error 400 when event Id entered in incorrect type", () => {
+        return request(app)
+          .post("/api/events/hello/users")
+          .send({user_id: 1})
+          .expect(400)
+          .then(({body}) => {
+            expect(body.msg).toBe("event_id must be a positive integer")
+          })
+      })
+      it("status: 404, event Id does not exist", () => {
+        return request(app)
+          .post("/api/events/9999/users")
+          .send({user_id: 1})
+          .expect(404)
+          .then(({body: {msg}}) => {
+            expect(msg).toBe("Event Not Found")
+          })
+      })
+    })
+  });
+  describe("/api/events/:event_id/games", () => {
+    describe("Functionality", () => {
+      it("inserts a new game into eventGames", () => {
+        return request(app)
+          .post("/api/events/1/games")
+          .send({ game_id: 5 })
+          .expect(201)
+          .then(({ body: { eventGame } }) => {
+            expect(eventGame).toEqual({
+              event_id: 1,
+              game_id: 5,
+              eventgames_id: 7,
+            });
+          });
+      });
+    });
+
+    describe("Error Handling", () => {
+      it("returns error 400 when game Id entered in incorrect type", () => {
+        return request(app)
+          .post("/api/events/1/games")
+          .send({game_id: "Hello"})
+          .expect(400)
+          .then(({body}) => {
+            expect(body.msg).toBe("game_id must be a positive integer")
+          })
+      })
+      it("status: 404, game Id does not exist", () => {
+        return request(app)
+          .post("/api/events/1/games")
+          .send({game_id: 99999})
+          .expect(404)
+          .then(({body: {msg}}) => {
+            expect(msg).toBe("Game Not Found")
+          })
+      })
+      it("returns error 400 when event Id entered in incorrect type", () => {
+        return request(app)
+          .post("/api/events/hello/games")
+          .send({game_id: 1})
+          .expect(400)
+          .then(({body}) => {
+            expect(body.msg).toBe("event_id must be a positive integer")
+          })
+      })
+      it("status: 404, event Id does not exist", () => {
+        return request(app)
+          .post("/api/events/9999/games")
+          .send({game_id: 1})
+          .expect(404)
+          .then(({body: {msg}}) => {
+            expect(msg).toBe("Event Not Found")
+          })
+      })
+    })
+  });
+  describe("/api/groups/:group_id/users", () => {
+    describe("Functionality", () => {
+      it("inserts a new user into userGroups", () => {
+        return request(app)
+          .post("/api/groups/1/users")
+          .send({ user_id: 1 })
+          .expect(201)
+          .then(({ body: {userGroup} }) => {
+            expect(userGroup).toEqual({
+              group_id: 1,
+              organiser: false,
+              user_id: 1,
+              usergroups_id: 5,
+            });
+          });
+      });
+    });
+
+    describe("Error Handling", () => {
+      it("returns error 400 when user Id entered in incorrect type", () => {
+        return request(app)
+          .post("/api/groups/1/users")
+          .send({user_id: "Hello"})
+          .expect(400)
+          .then(({body}) => {
+            expect(body.msg).toBe("user_id must be a positive integer")
+          })
+      })
+      it("status: 404, user Id does not exist", () => {
+        return request(app)
+          .post("/api/groups/1/users")
+          .send({user_id: 9999})
+          .expect(404)
+          .then(({body: {msg}}) => {
+            expect(msg).toBe("User Not Found")
+          })
+      })
+      it("returns error 400 when group Id entered in incorrect type", () => {
+        return request(app)
+          .post("/api/groups/hello/users")
+          .send({user_id: 1})
+          .expect(400)
+          .then(({body}) => {
+            expect(body.msg).toBe("group_id must be a positive integer")
+          })
+      })
+      it("status: 404, group Id does not exist", () => {
+        return request(app)
+          .post("/api/groups/9999/users")
+          .send({user_id: 1})
+          .expect(404)
+          .then(({body: {msg}}) => {
+            expect(msg).toBe("Group Not Found")
+          })
+      })
+    })
+  });
 });
 
 describe("PATCH", () => {
@@ -741,90 +909,62 @@ describe("PATCH", () => {
       it("status: 200, updates the values of a specified user and returns updated user", () => {
         return request(app)
           .patch("/api/users/1")
-          .send({ email: "newemail@email.com" })
+          .send({ username: "BIGj" })
           .expect(200)
           .then(({ body: { user } }) => {
             expect(user).toEqual({
               user_id: 1,
-              username: "BigJ",
-              name: "Joe",
-              email: "newemail@email.com",
+              uid: "1",
+              username: "BIGj",
               location: "Liverpool",
-              fav_games: [1, 2, 3],
-              friends: [5],
             });
           });
       });
       it("status: 200, ignores extra keys on body", () => {
         return request(app)
           .patch("/api/users/1")
-          .send({ email: "newemail@email.com", something_else: "aaaahhh" })
+          .send({ location: "Somewhere else", something_else: "aaaahhh" })
           .expect(200)
           .then(({ body: { user } }) => {
             expect(user).toEqual({
               user_id: 1,
+              uid: "1",
               username: "BigJ",
-              name: "Joe",
-              email: "newemail@email.com",
-              location: "Liverpool",
-              fav_games: [1, 2, 3],
-              friends: [5],
+              location: "Somewhere else",
             });
           });
       });
-      it("status: 200, works with arrays", () => {
-        return request(app)
-          .patch("/api/users/1")
-          .send({ fav_games: [4, 5] })
-          .expect(200)
-          .then(({ body: { user } }) => {
-            expect(user).toEqual({
-              user_id: 1,
-              username: "BigJ",
-              name: "Joe",
-              email: "joefuller042@gmail.com",
-              location: "Liverpool",
-              fav_games: [4, 5],
-              friends: [5],
-            });
-          });
-      });
+      // it("status: 200, allows inc_games and inc_friends properties", () => {
+      //   return request(app)
+      //     .patch("/api/users/1")
+      //     .send({ inc_games: [4], inc_friends: [1, 2] })
+      //     .expect(200)
+      //     .then(({ body: { user } }) => {
+      //       expect(user).toEqual({
+      //         user_id: 1,
+      //         username: "BigJ",
+      //         location: "Liverpool",
+      //       });
+      //     });
+      // });
 
-      it("status: 200, allows inc_games and inc_friends properties", () => {
-        return request(app)
-          .patch("/api/users/1")
-          .send({ inc_games: [4], inc_friends: [1, 2] })
-          .expect(200)
-          .then(({ body: { user } }) => {
-            expect(user).toEqual({
-              user_id: 1,
-              username: "BigJ",
-              name: "Joe",
-              email: "joefuller042@gmail.com",
-              location: "Liverpool",
-              fav_games: [1, 2, 3, 4],
-              friends: [5, 1, 2],
-            });
-          });
-      });
-
-      it("status: 200, allows out_games and out_friends properties", () => {
-        return request(app)
-          .patch("/api/users/1")
-          .send({ out_games: [2, 1], out_friends: [5] })
-          .expect(200)
-          .then(({ body: { user } }) => {
-            expect(user).toEqual({
-              user_id: 1,
-              username: "BigJ",
-              name: "Joe",
-              email: "joefuller042@gmail.com",
-              location: "Liverpool",
-              fav_games: [3],
-              friends: [],
-            });
-          });
-      });
+      // it("status: 200, allows out_games and out_friends properties", () => {
+      //   return request(app)
+      //     .patch("/api/users/1")
+      //     .send({ out_games: [2, 1], out_friends: [5] })
+      //     .expect(200)
+      //     .then(({ body: { user } }) => {
+      //       expect(user).toEqual({
+      //         user_id: 1,
+      //         username: "BigJ",
+      //         name: "Joe",
+      //         email: "joefuller042@gmail.com",
+      //         location: "Liverpool",
+      //         fav_games: [3],
+      //         friends: [],
+      //       });
+      //     });
+      // });
     });
 
     describe("Error Handling", () => {
@@ -841,7 +981,7 @@ describe("PATCH", () => {
       it("status: 400, invalid user_id", () => {
         return request(app)
           .patch("/api/users/cat")
-          .send({ email: "newemail@email.com" })
+          .send({ username: "newName" })
           .expect(400)
           .then(({ body: { msg } }) => {
             expect(msg).toBe("user_id must be a positive integer");
@@ -851,7 +991,7 @@ describe("PATCH", () => {
       it("status: 404, user_id not found", () => {
         return request(app)
           .patch("/api/users/99999")
-          .send({ email: "newemail@email.com" })
+          .send({ username: "testName" })
           .expect(404)
           .then(({ body: { msg } }) => {
             expect(msg).toBe("User Not Found");
@@ -878,11 +1018,9 @@ describe("PATCH", () => {
               date: "2021-01-18T00:00:00.000Z",
               start_time: "16:15:00",
               duration: 120,
-              organiser: 2,
-              guests: [1, 2],
-              games: [15, 27],
               visibility: true,
               willing_to_teach: false,
+              max_players: 5,
             });
           });
       });
@@ -903,63 +1041,56 @@ describe("PATCH", () => {
               date: "2021-01-18T00:00:00.000Z",
               start_time: "14:30:00",
               duration: 120,
-              organiser: 2,
-              guests: [1, 2],
-              games: [15, 27],
               visibility: false,
               willing_to_teach: false,
+              max_players: 5,
             });
           });
       });
-      it("status: 200, allows inc_games and inc_guests properties", () => {
-        return request(app)
-          .patch("/api/events/2")
-          .send({ inc_games: [4], inc_guests: [10, 20] })
-          .expect(200)
-          .then(({ body: { event } }) => {
-            expect(event).toEqual({
-              event_id: 2,
-              title: "Liverpool MeetUp",
-              description: "The actual, real, real boardgamemeetup",
-              latitude: "53.400002",
-              longitude: "-2.983333",
-              area: "Liverpool",
-              date: "2021-01-18T00:00:00.000Z",
-              start_time: "14:30:00",
-              duration: 120,
-              organiser: 2,
-              guests: [1, 2, 10, 20],
-              games: [15, 27, 4],
-              visibility: true,
-              willing_to_teach: false,
-            });
-          });
-      });
+      // it("status: 200, allows inc_games and inc_guests properties", () => {
+      //   return request(app)
+      //     .patch("/api/events/2")
+      //     .send({ inc_games: [4], inc_guests: [10, 20] })
+      //     .expect(200)
+      //     .then(({ body: { event } }) => {
+      //       expect(event).toEqual({
+      //         event_id: 2,
+      //         title: "Liverpool MeetUp",
+      //         description: "The actual, real, real boardgamemeetup",
+      //         latitude: "53.400002",
+      //         longitude: "-2.983333",
+      //         area: "Liverpool",
+      //         date: "2021-01-18T00:00:00.000Z",
+      //         start_time: "14:30:00",
+      //         duration: 120,
+      //         visibility: true,
+      //         willing_to_teach: false,
+      //         max_players: 5
+      //       });
+      //     });
+      // });
 
-      it("status: 200, allows out_games and out_guests properties", () => {
-        return request(app)
-          .patch("/api/events/2")
-          .send({ out_games: [27], out_guests: [1, 2] })
-          .expect(200)
-          .then(({ body: { event } }) => {
-            expect(event).toEqual({
-              event_id: 2,
-              title: "Liverpool MeetUp",
-              description: "The actual, real, real boardgamemeetup",
-              latitude: "53.400002",
-              longitude: "-2.983333",
-              area: "Liverpool",
-              date: "2021-01-18T00:00:00.000Z",
-              start_time: "14:30:00",
-              duration: 120,
-              organiser: 2,
-              guests: [],
-              games: [15],
-              visibility: true,
-              willing_to_teach: false,
-            });
-          });
-      });
+      // it("status: 200, allows out_games and out_guests properties", () => {
+      //   return request(app)
+      //     .patch("/api/events/2")
+      //     .send({ out_games: [27], out_guests: [1, 2] })
+      //     .expect(200)
+      //     .then(({ body: { event } }) => {
+      //       expect(event).toEqual({
+      //         event_id: 2,
+      //         title: "Liverpool MeetUp",
+      //         description: "The actual, real, real boardgamemeetup",
+      //         latitude: "53.400002",
+      //         longitude: "-2.983333",
+      //         area: "Liverpool",
+      //         date: "2021-01-18T00:00:00.000Z",
+      //         start_time: "14:30:00",
+      //         duration: 120,
+      //         visibility: true,
+      //         willing_to_teach: false,
+      //       });
+      //     });
+      // });
     });
 
     describe("Error Handling", () => {

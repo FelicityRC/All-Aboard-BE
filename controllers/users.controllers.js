@@ -5,7 +5,10 @@ const {
   updateUser,
   selectGamesByUserId,
   selectEventsByUserId,
+  insertGameToUserGames,
+  checkUser
 } = require("../models/users.models");
+const {selectGameByGameId} = require("../models/games.models")
 
 exports.getUsers = (req, res, next) => {
   selectUsers().then((users) => {
@@ -32,25 +35,49 @@ exports.postUser = (req, res, next) => {
     .catch((err) => next(err));
 };
 
+exports.postGameToUserGames = (req, res, next) => {
+  const body = req.body;
+  const user_id = req.params.user_id;
+
+  const promises = [
+    selectGameByGameId(body.game_id),
+    checkUser(user_id),
+    insertGameToUserGames(body.game_id, user_id),
+  ];
+
+  Promise.all(promises)
+    .then((promises) => {
+      res.status(201).send({ userGame: promises[2] });
+    })
+    .catch(next);
+};
+
 exports.patchUser = (req, res, next) => {
   const user_id = req.params.user_id;
   const body = req.body;
 
-  updateUser(user_id, body)
-    .then((user) => {
-      res.status(200).send({ user });
-    })
-    .catch((err) => next(err));
+  const promises = [
+    checkUser(user_id),
+    updateUser(user_id, body)
+  ]
+
+  Promise.all(promises).then((promises) => {
+    res.status(200).send({user: promises[1]})
+  }).catch((err) => next(err))
 };
 
 exports.getGamesByUserId = (req, res, next) => {
   const user_id = req.params.user_id;
 
-  selectGamesByUserId(user_id)
-    .then((games) => {
-      res.status(200).send({ games });
-    })
-    .catch((err) => next(err));
+  const promises = [
+    checkUser(user_id),
+    selectGamesByUserId(user_id)
+  ]
+
+  Promise.all(promises)
+    .then((promises) => {
+      res.status(200).send({games: promises[1]})
+    }).catch(next);
 };
 
 exports.getEventsByUserId = (req, res, next) => {

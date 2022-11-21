@@ -2,22 +2,36 @@ const db = require("../connection");
 const format = require("pg-format");
 
 const seed = async (data) => {
-  const { userData, gameData, eventData, groupData } = data;
+  const {
+    userData,
+    gameData,
+    eventData,
+    groupData,
+    userEventData,
+    userGameData,
+    eventGameData,
+    userGroupData,
+  } = data;
 
+  await db.query(`DROP TRIGGER IF EXISTS event_games_delete ON events`)
+  await db.query(`DROP TRIGGER IF EXISTS delete_event ON events`)
+  await db.query(`DROP TRIGGER IF EXISTS new_event ON events`)
+  await db.query(`DROP TABLE IF EXISTS userGroups;`);
+  await db.query(`DROP TABLE IF EXISTS userGames;`);
+  await db.query(`DROP TABLE IF EXISTS eventGames;`);
+  await db.query(`DROP TABLE IF EXISTS userEvents;`);
   await db.query(`DROP TABLE IF EXISTS events;`);
   await db.query(`DROP TABLE IF EXISTS groups`);
   await db.query(`DROP TABLE IF EXISTS games;`);
   await db.query(`DROP TABLE IF EXISTS users;`);
 
-  await db.query(`
+    await db.query(`
         CREATE TABLE users (
             user_id SERIAL PRIMARY KEY,
+            uid VARCHAR NOT NULL,
             username VARCHAR NOT NULL,
-            location VARCHAR,
-            friends INT[] DEFAULT ARRAY[]::INT[],
-            fav_games INT[] DEFAULT ARRAY[]::INT[]
+            location VARCHAR
         );`);
-
   // check best way to store date/time
 
   await db.query(`
@@ -31,11 +45,9 @@ const seed = async (data) => {
             date DATE DEFAULT NOW(),
             start_time TIME NOT NULL,
             duration INT,
-            organiser INT NOT NULL REFERENCES users(user_id),
             visibility BOOLEAN DEFAULT true,
             willing_to_teach BOOLEAN DEFAULT false,
-            guests INT[] DEFAULT ARRAY[]::INT[],
-            games INT[] DEFAULT ARRAY[]::INT[]
+            max_players INT
         );`);
 
   await db.query(`
@@ -52,19 +64,91 @@ const seed = async (data) => {
   await db.query(`
         CREATE TABLE groups (
             group_id SERIAL PRIMARY KEY,
-            organiser INT NOT NULL,
-            name VARCHAR NOT NULL,
-            users INT[] DEFAULT ARRAY[]::INT[],
-            events INT[] DEFAULT ARRAY[]::INT[]
+            name VARCHAR NOT NULL            
         )`);
 
+//   // junction tables
+
+  await db.query(`
+        CREATE TABLE userEvents (
+          userEvents_id SERIAL PRIMARY KEY NOT NULL,
+          user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+          event_id INT REFERENCES events(event_id) ON DELETE CASCADE,
+          organiser BOOLEAN NOT NULL
+        )`);
+
+  await db.query(`
+        CREATE TABLE eventGames (
+          eventGames_id SERIAL PRIMARY KEY NOT NULL,
+          event_id INT REFERENCES events(event_id) ON DELETE CASCADE,
+          game_id INT REFERENCES games(game_id) ON DELETE CASCADE
+        )`);
+
+  await db.query(`
+        CREATE TABLE userGames (
+          userGames_id SERIAL PRIMARY KEY NOT NULL,
+          user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+          game_id INT REFERENCES games(game_id) ON DELETE CASCADE
+        )`);
+
+  await db.query(`
+        CREATE TABLE userGroups (
+          userGroups_id SERIAL PRIMARY KEY NOT NULL,
+          user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+          group_id INT REFERENCES groups(group_id) ON DELETE CASCADE,
+          organiser BOOLEAN NOT NULL
+        )`);
+
+  await db.query(`
+          CREATE OR REPLACE FUNCTION delete_event_from_userEvents()
+            RETURNS TRIGGER
+            LANGUAGE PLPGSQL
+            AS
+          $$
+            BEGIN
+              DELETE FROM userEvents
+              WHERE event_id = OLD.event_id;
+              RETURN NULL;
+            END;
+          $$;
+  `)
+
+  await db.query(`
+  CREATE OR REPLACE FUNCTION delete_event_from_eventGames()
+    RETURNS TRIGGER
+    LANGUAGE PLPGSQL
+    AS
+  $$
+    BEGIN
+      DELETE FROM eventGames
+      WHERE event_id = OLD.event_id;
+      RETURN NULL;
+    END;
+  $$;
+`)
+
+  await db.query(`
+  CREATE OR REPLACE TRIGGER event_delete
+  AFTER DELETE
+  on events
+  FOR EACH ROW
+  EXECUTE PROCEDURE delete_event_from_userEvents();
+  `)
+
+  await db.query(`
+        CREATE OR REPLACE TRIGGER event_games_delete
+        AFTER DELETE
+        on events
+        FOR EACH ROW
+        EXECUTE PROCEDURE delete_event_from_eventGames();
+  `)
+
   const insertUsersQueryStr = format(
-    "INSERT INTO users (username, location, fav_games, friends) VALUES %L RETURNING *;",
-    userData.map(({ username, location, fav_games, friends }) => [
+    "INSERT INTO users (uid, username, location ) VALUES %L RETURNING *;",
+    userData.map(({ uid, username, location }) => [
+      uid,
       username,
       location,
-      "{" + fav_games + "}",
-      "{" + friends + "}",
     ])
   );
 
@@ -87,7 +171,7 @@ const seed = async (data) => {
   await db.query(insertGamesQueryStr).then((result) => result.rows);
 
   const insertEventsQueryStr = format(
-    "INSERT INTO events (title, description, latitude, longitude, area, date, start_time, duration, organiser, visibility, willing_to_teach, guests, games) VALUES %L RETURNING *;",
+    "INSERT INTO events (title, description, latitude, longitude, area, date, start_time, duration, visibility, willing_to_teach, max_players) VALUES %L RETURNING *;",
     eventData.map(
       ({
         title,
@@ -98,11 +182,9 @@ const seed = async (data) => {
         date,
         start_time,
         duration,
-        organiser,
         visibility,
         willing_to_teach,
-        guests,
-        games,
+        max_players
       }) => [
         title,
         description,
@@ -112,11 +194,9 @@ const seed = async (data) => {
         date,
         start_time,
         duration,
-        organiser,
         visibility,
         willing_to_teach,
-        "{" + guests + "}",
-        "{" + games + "}",
+        max_players
       ]
     )
   );
@@ -124,16 +204,56 @@ const seed = async (data) => {
   await db.query(insertEventsQueryStr).then((result) => result.rows);
 
   const insertGroupsQueryStr = format(
-    `INSERT INTO groups (organiser, name, users, events) VALUES %L RETURNING *`,
-    groupData.map(({ organiser, name, users, events }) => [
-      organiser,
-      name,
-      "{" + users + "}",
-      "{" + events + "}",
+    `INSERT INTO groups (name) VALUES %L RETURNING *`,
+    groupData.map(({ name }) => [
+     name,
     ])
   );
 
   await db.query(insertGroupsQueryStr).then((result) => result.rows);
+
+   const insertUserEventQueryStr = format(
+    `INSERT INTO userEvents (user_id, event_id, organiser) VALUES %L RETURNING *`,
+    userEventData.map(({ user_id, event_id, organiser }) => [
+      user_id,
+      event_id,
+      organiser,
+    ])
+   )
+
+  await db.query(insertUserEventQueryStr).then((result) => result.rows);
+
+  const insertUserGameQueryStr = format(
+    `INSERT INTO userGames (user_id, game_id) VALUES %L RETURNING *`,
+    userGameData.map(({ user_id, game_id }) => [
+      user_id,
+      game_id,
+    ])
+  );
+
+  await db.query(insertUserGameQueryStr).then((result) => result.rows);
+
+  const insertEventGameQueryStr = format(
+    `INSERT INTO eventGames (event_id, game_id) VALUES %L RETURNING *`,
+    eventGameData.map(({ event_id, game_id }) => [
+      event_id,
+      game_id,
+    ])
+  );
+
+  await db.query(insertEventGameQueryStr).then((result) => result.rows);
+
+  const insertUserGroupQueryStr = format(
+    `INSERT INTO userGroups (user_id, group_id, organiser) VALUES %L RETURNING *`,
+    userGroupData.map(({ user_id, group_id, organiser }) => [
+      user_id,
+      group_id,
+      organiser,
+    ])
+  );
+
+  await db.query(insertUserGroupQueryStr).then((result) => result.rows);
+
 };
 
 module.exports = seed;

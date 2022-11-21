@@ -2,7 +2,9 @@ const {
   selectGroups,
   selectGroupByGroupId,
   selectUsersByGroupId,
+  insertUserToUserGroups
 } = require("../models/groups.models");
+const { selectUserByUserId } = require("../models/users.models");
 
 exports.getGroups = (req, res, next) => {
   selectGroups().then((groups) => {
@@ -33,3 +35,19 @@ exports.getUsersByGroupId = (req, res, next) => {
       next(err);
     });
 };
+
+exports.postUserToUserGroups = (req, res, next) => {
+  const body = req.body;
+  const group_id = req.params.group_id;
+
+  const promises = [
+    selectUserByUserId(body.user_id),
+    selectGroupByGroupId(group_id),
+    insertUserToUserGroups(body.user_id, group_id)
+  ]
+
+  Promise.all(promises)
+    .then((promises) => {
+      res.status(201).send({userGroup: promises[2]})
+    }).catch(next);
+}

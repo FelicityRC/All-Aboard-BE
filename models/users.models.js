@@ -17,7 +17,29 @@ exports.selectUserByUserId = (user_id) => {
   }
 
   return db
-    .query(`SELECT * FROM users WHERE user_id=$1`, [user_id])
+    .query(
+      `SELECT users.*,
+    JSON_AGG(
+       DISTINCT jsonb_build_object('group_id', groups.group_id, 
+                                  'name', groups.name)) AS groups, 
+    JSON_AGG(
+       DISTINCT jsonb_build_object('game_id', games.game_id, 
+                                  'game_title', games.name)) AS games,
+     JSON_AGG(
+       DISTINCT jsonb_build_object('event_id', events.event_id, 
+                                  'name', events.title,
+                                  'organiser', userevents.organiser)) AS events
+    FROM users
+    JOIN usergames on users.user_id = usergames.user_id
+    JOIN userevents on users.user_id = userevents.user_id
+    JOIN usergroups on users.user_id = usergroups.user_id
+    JOIN games on usergames.game_id = games.game_id
+    JOIN events on userevents.event_id = events.event_id
+    JOIN groups on usergroups.group_id = groups.group_id
+    WHERE users.user_id = $1
+    GROUP BY users.user_id;`,
+      [user_id]
+    )
     .then(({ rows: [user] }) => {
       if (user) {
         return user;
@@ -32,23 +54,38 @@ exports.insertUser = (body) => {
     return Promise.reject({ status: 400, msg: "Bad Request" });
   }
 
-  if (!(body.username && body.name && body.email && body.location)) {
+  if (!(body.uid && body.username && body.location)) {
     return Promise.reject({ status: 400, msg: "Missing Required Fields" });
   }
 
   return db
     .query(
       `INSERT INTO users
-    (username, name, email, location)
+    (uid, username, location)
     VALUES
-    ($1, $2, $3, $4)
+    ($1, $2, $3)
     RETURNING *`,
-      [body.username, body.name, body.email, body.location]
+      [body.uid, body.username, body.location]
     )
     .then(({ rows: [user] }) => {
       return user;
     });
 };
+
+exports.insertGameToUserGames = (game_id, user_id) => {
+
+  return db.query(
+    `
+    INSERT INTO userGames
+    (game_id, user_id)
+    VALUES
+    ($1, $2)
+    RETURNING *;
+    `, [game_id, user_id]
+  ).then(({rows: [userGame]}) => {
+    return userGame;
+  })
+}
 
 exports.updateUser = (user_id, body) => {
   // this checks the user_id is a positive integer
@@ -66,15 +103,9 @@ exports.updateUser = (user_id, body) => {
 
   const validKeys = [
     "username",
-    "name",
-    "email",
     "location",
-    "fav_games",
-    "friends",
     "inc_games",
-    "inc_friends",
     "out_games",
-    "out_friends",
   ];
 
   const keys = Object.keys(body);
@@ -83,31 +114,15 @@ exports.updateUser = (user_id, body) => {
 
   for (const key of keys) {
     if (validKeys.includes(key)) {
-      if (key === "fav_games" || key === "friends") {
-        queryString += `${key}='{${body[key]}}', `;
-      } else if (key === "inc_games") {
-        queryString += `fav_games=ARRAY_CAT(fav_games, ARRAY[${body["inc_games"]}]), `;
-      } else if (key === "inc_friends") {
-        queryString += `friends=ARRAY_CAT(friends, ARRAY[${body["inc_friends"]}]), `;
-      } else if (key === "out_games") {
-        queryString += `fav_games=(SELECT ARRAY(SELECT UNNEST(fav_games) EXCEPT SELECT UNNEST('{${body["out_games"]}}'::INT[]))), `;
-      } else if (key === "out_friends") {
-        queryString += `friends=(SELECT ARRAY(SELECT UNNEST(friends) EXCEPT SELECT UNNEST('{${body["out_friends"]}}'::INT[]))), `;
-      } else {
         queryString += `${key}='${body[key]}', `;
       }
     }
-  }
 
   queryString = queryString.slice(0, -2);
-  queryString += ` WHERE user_id=${user_id} RETURNING *`;
+  queryString += ` WHERE user_id=$1 RETURNING *`;
 
-  return db.query(queryString).then(({ rows: [user] }) => {
-    if (user) {
-      return user;
-    } else {
-      return Promise.reject({ status: 404, msg: "User Not Found" });
-    }
+  return db.query(queryString,[user_id]).then(({ rows: [user] }) => {
+    return user
   });
 };
 
@@ -121,22 +136,15 @@ exports.selectGamesByUserId = (user_id) => {
     });
   }
 
-  return db
-    .query(`SELECT * FROM users WHERE user_id=$1`, [user_id])
-    .then(({ rows: [user] }) => {
-      if (user) {
-        let queryString = `SELECT * FROM games WHERE `;
-        for (const game_id of user.fav_games) {
-          queryString += `game_id=${game_id} OR `;
-        }
-        queryString = queryString.slice(0, -3);
-        return db.query(queryString).then(({ rows: games }) => {
-          return games;
-        });
-      } else {
-        return Promise.reject({ status: 404, msg: "User Not Found" });
-      }
-    });
+  return db.query(
+    `SELECT games.*
+FROM games
+LEFT JOIN userGames ON games.game_id = userGames.game_id
+WHERE user_id = $1;`,
+    [user_id]
+  ).then(({rows: games}) => {
+    return games;
+  })
 };
 
 exports.selectEventsByUserId = (user_id) => {
@@ -150,8 +158,32 @@ exports.selectEventsByUserId = (user_id) => {
   }
 
   return db
-    .query(`SELECT * FROM events WHERE $1=ANY(guests)`, [user_id])
+    .query(`SELECT events.*
+    FROM events
+    LEFT JOIN userEvents ON events.event_id = userEvents.event_id
+    WHERE user_id = $1;`, [user_id])
     .then(({ rows: events }) => {
       return events;
     });
 };
+
+exports.checkUser = (user_id) => {
+  const num = Number(user_id);
+  if (!(Number.isInteger(num) && num > 0)) {
+    return Promise.reject({
+      status: 400,
+      msg: "user_id must be a positive integer",
+    });
+  };
+
+  return db.query(
+    `
+    SELECT * FROM users
+    WHERE user_id = $1
+    `, [user_id]
+  ).then(({rows: [user]}) => {
+    if (!user) {
+      return Promise.reject({status: 404, msg: "User Not Found"})
+    }
+  })
+}
