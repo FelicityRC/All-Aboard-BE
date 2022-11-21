@@ -30,12 +30,12 @@ exports.selectUserByUserId = (user_id) => {
                                   'name', events.title,
                                   'organiser', userevents.organiser)) AS events
     FROM users
-    JOIN usergames on users.user_id = usergames.user_id
-    JOIN userevents on users.user_id = userevents.user_id
-    JOIN usergroups on users.user_id = usergroups.user_id
-    JOIN games on usergames.game_id = games.game_id
-    JOIN events on userevents.event_id = events.event_id
-    JOIN groups on usergroups.group_id = groups.group_id
+    LEFT JOIN usergames on users.user_id = usergames.user_id
+    LEFT JOIN userevents on users.user_id = userevents.user_id
+    LEFT JOIN usergroups on users.user_id = usergroups.user_id
+    LEFT JOIN games on usergames.game_id = games.game_id
+    LEFT JOIN events on userevents.event_id = events.event_id
+    LEFT JOIN groups on usergroups.group_id = groups.group_id
     WHERE users.user_id = $1
     GROUP BY users.user_id;`,
       [user_id]
