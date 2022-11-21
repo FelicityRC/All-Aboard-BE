@@ -99,49 +99,6 @@ const seed = async (data) => {
           organiser BOOLEAN NOT NULL
         )`);
 
-  await db.query(`
-          CREATE OR REPLACE FUNCTION delete_event_from_userEvents()
-            RETURNS TRIGGER
-            LANGUAGE PLPGSQL
-            AS
-          $$
-            BEGIN
-              DELETE FROM userEvents
-              WHERE event_id = OLD.event_id;
-              RETURN NULL;
-            END;
-          $$;
-  `)
-
-  await db.query(`
-  CREATE OR REPLACE FUNCTION delete_event_from_eventGames()
-    RETURNS TRIGGER
-    LANGUAGE PLPGSQL
-    AS
-  $$
-    BEGIN
-      DELETE FROM eventGames
-      WHERE event_id = OLD.event_id;
-      RETURN NULL;
-    END;
-  $$;
-`)
-
-  await db.query(`
-  CREATE OR REPLACE TRIGGER event_delete
-  AFTER DELETE
-  on events
-  FOR EACH ROW
-  EXECUTE PROCEDURE delete_event_from_userEvents();
-  `)
-
-  await db.query(`
-        CREATE OR REPLACE TRIGGER event_games_delete
-        AFTER DELETE
-        on events
-        FOR EACH ROW
-        EXECUTE PROCEDURE delete_event_from_eventGames();
-  `)
 
   const insertUsersQueryStr = format(
     "INSERT INTO users (uid, username, location ) VALUES %L RETURNING *;",
