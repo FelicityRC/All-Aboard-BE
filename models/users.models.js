@@ -73,19 +73,21 @@ exports.insertUser = (body) => {
 };
 
 exports.insertGameToUserGames = (game_id, user_id) => {
-
-  return db.query(
-    `
+  return db
+    .query(
+      `
     INSERT INTO userGames
     (game_id, user_id)
     VALUES
     ($1, $2)
     RETURNING *;
-    `, [game_id, user_id]
-  ).then(({rows: [userGame]}) => {
-    return userGame;
-  })
-}
+    `,
+      [game_id, user_id]
+    )
+    .then(({ rows: [userGame] }) => {
+      return userGame;
+    });
+};
 
 exports.updateUser = (user_id, body) => {
   // this checks the user_id is a positive integer
@@ -101,12 +103,7 @@ exports.updateUser = (user_id, body) => {
     return Promise.reject({ status: 400, msg: "Bad Request" });
   }
 
-  const validKeys = [
-    "username",
-    "location",
-    "inc_games",
-    "out_games",
-  ];
+  const validKeys = ["username", "location", "inc_games", "out_games"];
 
   const keys = Object.keys(body);
 
@@ -114,15 +111,15 @@ exports.updateUser = (user_id, body) => {
 
   for (const key of keys) {
     if (validKeys.includes(key)) {
-        queryString += `${key}='${body[key]}', `;
-      }
+      queryString += `${key}='${body[key]}', `;
     }
+  }
 
   queryString = queryString.slice(0, -2);
   queryString += ` WHERE user_id=$1 RETURNING *`;
 
-  return db.query(queryString,[user_id]).then(({ rows: [user] }) => {
-    return user
+  return db.query(queryString, [user_id]).then(({ rows: [user] }) => {
+    return user;
   });
 };
 
@@ -136,15 +133,17 @@ exports.selectGamesByUserId = (user_id) => {
     });
   }
 
-  return db.query(
-    `SELECT games.*
+  return db
+    .query(
+      `SELECT games.*
 FROM games
 LEFT JOIN userGames ON games.game_id = userGames.game_id
 WHERE user_id = $1;`,
-    [user_id]
-  ).then(({rows: games}) => {
-    return games;
-  })
+      [user_id]
+    )
+    .then(({ rows: games }) => {
+      return games;
+    });
 };
 
 exports.selectEventsByUserId = (user_id) => {
@@ -158,10 +157,13 @@ exports.selectEventsByUserId = (user_id) => {
   }
 
   return db
-    .query(`SELECT events.*
+    .query(
+      `SELECT events.*
     FROM events
     LEFT JOIN userEvents ON events.event_id = userEvents.event_id
-    WHERE user_id = $1;`, [user_id])
+    WHERE user_id = $1;`,
+      [user_id]
+    )
     .then(({ rows: events }) => {
       return events;
     });
@@ -174,16 +176,35 @@ exports.checkUser = (user_id) => {
       status: 400,
       msg: "user_id must be a positive integer",
     });
-  };
+  }
 
-  return db.query(
-    `
+  return db
+    .query(
+      `
     SELECT * FROM users
     WHERE user_id = $1
-    `, [user_id]
-  ).then(({rows: [user]}) => {
-    if (!user) {
-      return Promise.reject({status: 404, msg: "User Not Found"})
-    }
-  })
-}
+    `,
+      [user_id]
+    )
+    .then(({ rows: [user] }) => {
+      if (!user) {
+        return Promise.reject({ status: 404, msg: "User Not Found" });
+      }
+    });
+};
+
+exports.selectUserIdByUID = (UID) => {
+  return db
+    .query(
+      `
+      SELECT user_id FROM users
+      WHERE uid = $1`,
+      [UID]
+    )
+    .then((res) => {
+      if (res.rowCount === 0) {
+        return Promise.reject({ status: 404, msg: "UID Not Found" });
+      }
+      return res.rows[0].user_id;
+    });
+};
