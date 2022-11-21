@@ -201,7 +201,10 @@ exports.selectUserIdByUID = (UID) => {
       WHERE uid = $1`,
       [UID]
     )
-    .then(({ rows: [{ user_id }] }) => {
-      return user_id;
+    .then((res) => {
+      if (res.rowCount === 0) {
+        return Promise.reject({ status: 404, msg: "UID Not Found" });
+      }
+      return res.rows[0].user_id;
     });
 };

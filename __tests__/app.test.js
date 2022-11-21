@@ -228,6 +228,16 @@ describe("GET", () => {
           });
       });
     });
+    describe("Error Handling", () => {
+      it("status: 404, Not Found", () => {
+        return request(app)
+          .get("/api/users/uidLookup/fakeuid")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("UID Not Found");
+          });
+      });
+    });
   });
 
   describe("/api/games", () => {
