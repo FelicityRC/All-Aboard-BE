@@ -19,23 +19,23 @@ exports.selectUserByUserId = (user_id) => {
   return db
     .query(
       `SELECT users.*,
-    // JSON_AGG(
-    //    DISTINCT jsonb_build_object('group_id', groups.group_id, 
-    //                               'name', groups.name)) AS groups, 
-    // JSON_AGG(
-    //    DISTINCT jsonb_build_object('game_id', games.game_id, 
-    //                               'game_title', games.name)) AS games,
-    //  JSON_AGG(
-    //    DISTINCT jsonb_build_object('event_id', events.event_id, 
-    //                               'name', events.title,
-    //                               'organiser', userevents.organiser)) AS events
+    JSON_AGG(
+       DISTINCT jsonb_build_object('group_id', groups.group_id, 
+                                  'name', groups.name)) AS groups, 
+    JSON_AGG(
+       DISTINCT jsonb_build_object('game_id', games.game_id, 
+                                  'game_title', games.name)) AS games,
+     JSON_AGG(
+       DISTINCT jsonb_build_object('event_id', events.event_id, 
+                                  'name', events.title,
+                                  'organiser', userevents.organiser)) AS events
     FROM users
-    // JOIN usergames on users.user_id = usergames.user_id
-    // JOIN userevents on users.user_id = userevents.user_id
-    // JOIN usergroups on users.user_id = usergroups.user_id
-    // JOIN games on usergames.game_id = games.game_id
-    // JOIN events on userevents.event_id = events.event_id
-    // JOIN groups on usergroups.group_id = groups.group_id
+    JOIN usergames on users.user_id = usergames.user_id
+    JOIN userevents on users.user_id = userevents.user_id
+    JOIN usergroups on users.user_id = usergroups.user_id
+    JOIN games on usergames.game_id = games.game_id
+    JOIN events on userevents.event_id = events.event_id
+    JOIN groups on usergroups.group_id = groups.group_id
     WHERE users.user_id = $1
     GROUP BY users.user_id;`,
       [user_id]
