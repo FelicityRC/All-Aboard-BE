@@ -217,6 +217,18 @@ describe("GET", () => {
       });
     });
   });
+  describe("/api/users/uidLookup/:uid", () => {
+    describe("Functionality", () => {
+      it("status: 200, responds with a user_id", () => {
+        return request(app)
+          .get("/api/users/uidLookup/1")
+          .expect(200)
+          .then(({ body: { user_id } }) => {
+            expect(user_id).toBe(1);
+          });
+      });
+    });
+  });
 
   describe("/api/games", () => {
     describe("Functionality", () => {
@@ -627,7 +639,7 @@ describe("POST", () => {
       });
     });
   });
-  
+
   describe("/api/users/:user_id/games", () => {
     describe("Functionality", () => {
       it("inserts a new game into userGames", () => {
@@ -649,41 +661,41 @@ describe("POST", () => {
       it("returns error 400 when game Id entered in incorrect type", () => {
         return request(app)
           .post("/api/users/1/games")
-          .send({game_id: "Hello"})
+          .send({ game_id: "Hello" })
           .expect(400)
-          .then(({body}) => {
-            expect(body.msg).toBe("game_id must be a positive integer")
-          })
-      })
+          .then(({ body }) => {
+            expect(body.msg).toBe("game_id must be a positive integer");
+          });
+      });
       it("status: 404, game Id does not exist", () => {
         return request(app)
           .post("/api/users/1/games")
-          .send({game_id: 99999})
+          .send({ game_id: 99999 })
           .expect(404)
-          .then(({body: {msg}}) => {
-            expect(msg).toBe("Game Not Found")
-          })
-      })
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Game Not Found");
+          });
+      });
       it("returns error 400 when user Id entered in incorrect type", () => {
         return request(app)
           .post("/api/users/hello/games")
-          .send({game_id: 1})
+          .send({ game_id: 1 })
           .expect(400)
-          .then(({body}) => {
-            expect(body.msg).toBe("user_id must be a positive integer")
-          })
-      })
+          .then(({ body }) => {
+            expect(body.msg).toBe("user_id must be a positive integer");
+          });
+      });
       it("status: 404, user Id does not exist", () => {
         return request(app)
           .post("/api/users/9999/games")
-          .send({game_id: 1})
+          .send({ game_id: 1 })
           .expect(404)
-          .then(({body: {msg}}) => {
-            expect(msg).toBe("User Not Found")
-          })
-      })
-    })
-  })
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("User Not Found");
+          });
+      });
+    });
+  });
   describe("/api/events", () => {
     describe("Functionality", () => {
       it("status: 201, adds a new event and returns it", () => {
@@ -753,40 +765,40 @@ describe("POST", () => {
       it("returns error 400 when user Id entered in incorrect type", () => {
         return request(app)
           .post("/api/events/1/users")
-          .send({user_id: "Hello"})
+          .send({ user_id: "Hello" })
           .expect(400)
-          .then(({body}) => {
-            expect(body.msg).toBe("user_id must be a positive integer")
-          })
-      })
+          .then(({ body }) => {
+            expect(body.msg).toBe("user_id must be a positive integer");
+          });
+      });
       it("status: 404, user Id does not exist", () => {
         return request(app)
           .post("/api/events/1/users")
-          .send({user_id: 9999})
+          .send({ user_id: 9999 })
           .expect(404)
-          .then(({body: {msg}}) => {
-            expect(msg).toBe("User Not Found")
-          })
-      })
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("User Not Found");
+          });
+      });
       it("returns error 400 when event Id entered in incorrect type", () => {
         return request(app)
           .post("/api/events/hello/users")
-          .send({user_id: 1})
+          .send({ user_id: 1 })
           .expect(400)
-          .then(({body}) => {
-            expect(body.msg).toBe("event_id must be a positive integer")
-          })
-      })
+          .then(({ body }) => {
+            expect(body.msg).toBe("event_id must be a positive integer");
+          });
+      });
       it("status: 404, event Id does not exist", () => {
         return request(app)
           .post("/api/events/9999/users")
-          .send({user_id: 1})
+          .send({ user_id: 1 })
           .expect(404)
-          .then(({body: {msg}}) => {
-            expect(msg).toBe("Event Not Found")
-          })
-      })
-    })
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Event Not Found");
+          });
+      });
+    });
   });
   describe("/api/events/:event_id/games", () => {
     describe("Functionality", () => {
@@ -809,40 +821,40 @@ describe("POST", () => {
       it("returns error 400 when game Id entered in incorrect type", () => {
         return request(app)
           .post("/api/events/1/games")
-          .send({game_id: "Hello"})
+          .send({ game_id: "Hello" })
           .expect(400)
-          .then(({body}) => {
-            expect(body.msg).toBe("game_id must be a positive integer")
-          })
-      })
+          .then(({ body }) => {
+            expect(body.msg).toBe("game_id must be a positive integer");
+          });
+      });
       it("status: 404, game Id does not exist", () => {
         return request(app)
           .post("/api/events/1/games")
-          .send({game_id: 99999})
+          .send({ game_id: 99999 })
           .expect(404)
-          .then(({body: {msg}}) => {
-            expect(msg).toBe("Game Not Found")
-          })
-      })
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Game Not Found");
+          });
+      });
       it("returns error 400 when event Id entered in incorrect type", () => {
         return request(app)
           .post("/api/events/hello/games")
-          .send({game_id: 1})
+          .send({ game_id: 1 })
           .expect(400)
-          .then(({body}) => {
-            expect(body.msg).toBe("event_id must be a positive integer")
-          })
-      })
+          .then(({ body }) => {
+            expect(body.msg).toBe("event_id must be a positive integer");
+          });
+      });
       it("status: 404, event Id does not exist", () => {
         return request(app)
           .post("/api/events/9999/games")
-          .send({game_id: 1})
+          .send({ game_id: 1 })
           .expect(404)
-          .then(({body: {msg}}) => {
-            expect(msg).toBe("Event Not Found")
-          })
-      })
-    })
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Event Not Found");
+          });
+      });
+    });
   });
   describe("/api/groups/:group_id/users", () => {
     describe("Functionality", () => {
@@ -851,7 +863,7 @@ describe("POST", () => {
           .post("/api/groups/1/users")
           .send({ user_id: 1 })
           .expect(201)
-          .then(({ body: {userGroup} }) => {
+          .then(({ body: { userGroup } }) => {
             expect(userGroup).toEqual({
               group_id: 1,
               organiser: false,
@@ -866,40 +878,40 @@ describe("POST", () => {
       it("returns error 400 when user Id entered in incorrect type", () => {
         return request(app)
           .post("/api/groups/1/users")
-          .send({user_id: "Hello"})
+          .send({ user_id: "Hello" })
           .expect(400)
-          .then(({body}) => {
-            expect(body.msg).toBe("user_id must be a positive integer")
-          })
-      })
+          .then(({ body }) => {
+            expect(body.msg).toBe("user_id must be a positive integer");
+          });
+      });
       it("status: 404, user Id does not exist", () => {
         return request(app)
           .post("/api/groups/1/users")
-          .send({user_id: 9999})
+          .send({ user_id: 9999 })
           .expect(404)
-          .then(({body: {msg}}) => {
-            expect(msg).toBe("User Not Found")
-          })
-      })
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("User Not Found");
+          });
+      });
       it("returns error 400 when group Id entered in incorrect type", () => {
         return request(app)
           .post("/api/groups/hello/users")
-          .send({user_id: 1})
+          .send({ user_id: 1 })
           .expect(400)
-          .then(({body}) => {
-            expect(body.msg).toBe("group_id must be a positive integer")
-          })
-      })
+          .then(({ body }) => {
+            expect(body.msg).toBe("group_id must be a positive integer");
+          });
+      });
       it("status: 404, group Id does not exist", () => {
         return request(app)
           .post("/api/groups/9999/users")
-          .send({user_id: 1})
+          .send({ user_id: 1 })
           .expect(404)
-          .then(({body: {msg}}) => {
-            expect(msg).toBe("Group Not Found")
-          })
-      })
-    })
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Group Not Found");
+          });
+      });
+    });
   });
 });
 

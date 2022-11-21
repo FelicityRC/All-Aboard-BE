@@ -8,6 +8,7 @@ const {
   getGamesByUserId,
   getEventsByUserId,
   postGameToUserGames,
+  getUserIdByUID,
 } = require("../controllers/users.controllers");
 
 userRouter.route("/").get(getUsers).post(postUser);
@@ -17,5 +18,6 @@ userRouter
   .get(getGamesByUserId)
   .post(postGameToUserGames);
 userRouter.get("/:user_id/events", getEventsByUserId);
+userRouter.get("/uidLookup/:uid", getUserIdByUID);
 
 module.exports = userRouter;
