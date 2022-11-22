@@ -31,11 +31,13 @@ exports.getEventByEventId = (req, res, next) => {
 
 exports.postEvent = (req, res, next) => {
   const body = req.body;
+  console.log(body)
   insertEvent(body)
     .then((event) => {
       res.status(201).send({ event });
     })
     .catch((err) => {
+      console.log(err)
       next(err);
     });
 };
@@ -60,7 +62,7 @@ exports.postUserToUserEvents = (req, res, next) => {
 exports.postGameToEventGames = (req, res, next) => {
   const body = req.body;
   const event_id = req.params.event_id;
-  
+
   const promises = [
     selectGameByGameId(body.game_id),
     checkEvent(event_id),

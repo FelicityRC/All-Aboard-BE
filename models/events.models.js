@@ -14,9 +14,9 @@ exports.selectEvents = () => {
     AND events.event_id = userEvents.event_id) AS organiser
       FROM events
       LEFT JOIN eventGames ON events.event_id = eventGames.event_id
-      JOIN games ON games.game_id = eventGames.game_id
+      LEFT JOIN games ON games.game_id = eventGames.game_id
       LEFT JOIN userEvents ON events.event_id = userEvents.event_id
-      JOIN users ON users.user_id = userEvents.user_id
+      LEFT JOIN users ON users.user_id = userEvents.user_id
       GROUP BY events.event_id;
   `
     )
@@ -52,9 +52,9 @@ exports.selectEventByEventId = (event_id) => {
                                         'username', users.username)) AS guests
       FROM events
       LEFT JOIN eventGames ON events.event_id = eventGames.event_id
-      RIGHT JOIN games ON games.game_id = eventGames.game_id
+      LEFT JOIN games ON games.game_id = eventGames.game_id
       LEFT JOIN userEvents ON events.event_id = userEvents.event_id
-      RIGHT JOIN users ON users.user_id = userEvents.user_id
+      LEFT JOIN users ON users.user_id = userEvents.user_id
       WHERE events.event_id = $1
       GROUP BY events.event_id;
     `,
@@ -84,7 +84,7 @@ exports.selectUsersByEventId = (event_id) => {
       `
       SELECT users.* 
       FROM userEvents
-      RIGHT JOIN users ON userEvents.user_id = users.user_id
+      JOIN users ON userEvents.user_id = users.user_id
       WHERE event_id=$1;`,
       [event_id]
     )
@@ -106,7 +106,7 @@ exports.selectGamesByEventId = (event_id) => {
       `
       SELECT games.* 
       FROM eventGames
-      RIGHT JOIN games ON eventGames.game_id = games.game_id
+      JOIN games ON eventGames.game_id = games.game_id
       WHERE event_id=$1;`,
       [event_id]
     )
@@ -155,32 +155,11 @@ exports.insertEvent = (body) => {
   ];
 
   const keys = Object.keys(body);
-  let functionString = `
-  CREATE OR REPLACE FUNCTION insert_event()
-      RETURNS TRIGGER
-      LANGUAGE PLPGSQL
-      AS
-  $$
-      BEGIN
-        INSERT INTO userEvents(event_id, user_id, organiser)
-        VALUES(NEW.event_id, ${user_id}, true);
-        RETURN NULL;
-      END;
-  $$;
-
-  CREATE OR REPLACE TRIGGER new_event
-  AFTER INSERT
-  on events
-  FOR EACH ROW
-  EXECUTE PROCEDURE insert_event();`;
 
   let queryString = `INSERT INTO events (`;
 
   for (const key of keys) {
     if (validKeys.includes(key)) {
-      if (key === "guests" || key === "games") {
-        queryString += `${key}='{${body[key]}}', `;
-      }
       queryString += key + ", ";
     }
   }
@@ -192,14 +171,10 @@ exports.insertEvent = (body) => {
   queryString = queryString.slice(0, -2);
   queryString += `) RETURNING *;`;
 
-  return db
-    .query(functionString)
-    .then(() => {
-      return db.query(queryString);
-    })
-    .then(({ rows: [event] }) => {
-      return event;
-    });
+  console.log(queryString);
+  return db.query(queryString).then(({ rows: [event] }) => {
+    return event;
+  });
 };
 
 exports.insertUserToUserEvents = (user_id, event_id) => {
@@ -312,16 +287,19 @@ exports.checkEvent = (event_id) => {
       status: 400,
       msg: "event_id must be a positive integer",
     });
-  };
+  }
 
-  return db.query(
-    `
+  return db
+    .query(
+      `
     SELECT * FROM events
     WHERE event_id = $1;
-    `, [event_id]
-  ).then(({rows: [event]}) => {
-    if (!event) {
-      return Promise.reject({status: 404, msg: "Event Not Found"})
-    }
-  })
-}
+    `,
+      [event_id]
+    )
+    .then(({ rows: [event] }) => {
+      if (!event) {
+        return Promise.reject({ status: 404, msg: "Event Not Found" });
+      }
+    });
+};
