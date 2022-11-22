@@ -141,7 +141,7 @@ module.exports = [
     description:
       " Each game of  Carcassonne  reveals a unique environment as tiles form a landscape of cities, roads, fields, and monasteries. Claim these features with your followers to win the game. \r\n  Carcassonne  is a tile placement game where players collectively construct the area around the medieval French city of Carcassonne while competing to place followers on various features and score the most points. \r\n First published in 2000, the game's accessible yet deep design has attracted a wide fan base and led to the development of numerous expansions (eg Rivers) and standalone titles in the  Carcassonne  line. ",
     image_url:
-      "https://cdn.shopify.com/s/files/1/0513/4077/1515/products/carcassonne-board-game.jpg?v=1609629064",
+      "https://cf.geekdo-images.com/9E3n5SxxXKiUdRUw03EVvQ__imagepage/img/BtV_s0YrqyCHtVU0uitZU4Ib7tw=/fit-in/900x600/filters:no_upscale():strip_icc()/pic166867.jpg",
     min_players: 2,
     max_players: 5,
     rules_url:
