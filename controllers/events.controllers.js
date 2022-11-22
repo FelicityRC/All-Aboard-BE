@@ -31,7 +31,6 @@ exports.getEventByEventId = (req, res, next) => {
 
 exports.postEvent = (req, res, next) => {
   const body = req.body;
-  console.log(body)
   insertEvent(body)
     .then((event) => {
       res.status(201).send({ event });

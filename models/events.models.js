@@ -171,10 +171,17 @@ exports.insertEvent = (body) => {
   queryString = queryString.slice(0, -2);
   queryString += `) RETURNING *;`;
 
-  console.log(queryString);
-  return db.query(queryString).then(({ rows: [event] }) => {
-    return event;
-  });
+  return Promise.all([db.query(queryString), user_id]).then((promises) => {
+    const junctionUpdate =     `
+    INSERT INTO userEvents
+    (user_id, event_id, organiser)
+    VALUES
+    ($1, $2, true)
+    RETURNING *;`
+    return Promise.all([db.query(junctionUpdate, [user_id, promises[0].rows[0].event_id]), promises[0].rows[0]])
+  }).then((promises) => {
+    return promises[1]
+  })
 };
 
 exports.insertUserToUserEvents = (user_id, event_id) => {
