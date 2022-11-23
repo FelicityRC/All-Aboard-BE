@@ -72,15 +72,14 @@ exports.insertUser = (body) => {
     });
 };
 
-exports.insertGameToUserGames = (game_id, user_id) => {
+exports.insertGameToUserGames = (user_id, game_id) => {
   return db
     .query(
       `
-    INSERT INTO userGames
-    (game_id, user_id)
-    VALUES
-    ($1, $2)
-    RETURNING *;
+      INSERT INTO userGames (user_id, game_id) 
+      SELECT $1, $2
+      WHERE NOT EXISTS (SELECT user_id, game_id from userGames WHERE user_id = $1 AND game_id = $2)
+      RETURNING *;
     `,
       [game_id, user_id]
     )

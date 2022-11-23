@@ -9,4 +9,9 @@ module.exports = [
     username: "Little J",
     location: "Manchester",
   },
+  {
+    uid: "3",
+    username: "TestUser",
+    location: "Manchester"
+  }
 ];

@@ -25,4 +25,17 @@ module.exports = [
     willing_to_teach: false,
     max_players: 5
   },
+  {
+    title: "Didsbury MeetUp",
+    description: "The actual, real, real, real boardgamemeetup",
+    latitude: 53.426671177290814,
+    longitude: -2.2427344322204594,
+    area: "Manchester",
+    date: new Date(1610964545410),
+    start_time: "14:30:00",
+    duration: 120,
+    visibility: true,
+    willing_to_teach: false,
+    max_players: 5
+  },
 ];

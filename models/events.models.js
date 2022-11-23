@@ -188,10 +188,9 @@ exports.insertUserToUserEvents = (user_id, event_id) => {
   return db
     .query(
       `
-    INSERT INTO userEvents
-    (user_id, event_id, organiser)
-    VALUES
-    ($1, $2, false)
+    INSERT INTO userEvents (user_id, event_id, organiser)
+    SELECT $1, $2, false
+    WHERE NOT EXISTS (SELECT user_id, event_id from userEvents WHERE user_id = $1 AND event_id = $2)
     RETURNING *;
     `,
       [user_id, event_id]
@@ -200,15 +199,16 @@ exports.insertUserToUserEvents = (user_id, event_id) => {
       return userEvent;
     });
 };
+//
+//
 
 exports.insertGameToEventGames = (game_id, event_id) => {
   return db
     .query(
       `
-      INSERT INTO eventGames
-      (game_id, event_id)
-      VALUES
-      ($1, $2)
+      INSERT INTO eventGames (event_id, game_id) 
+      SELECT $2, $1
+      WHERE NOT EXISTS (SELECT event_id, game_id from eventGames WHERE event_id = $2 AND game_id = $1)
       RETURNING *;
       `,
       [game_id, event_id]

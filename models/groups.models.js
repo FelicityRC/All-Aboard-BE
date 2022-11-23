@@ -56,10 +56,9 @@ exports.insertUserToUserGroups = (user_id, group_id) => {
 
   return db.query(
     `
-    INSERT INTO userGroups
-    (user_id, group_id, organiser)
-    VALUES
-    ($1, $2, false)
+    INSERT INTO userGroups (user_id, group_id, organiser) 
+    SELECT $1, $2, false
+    WHERE NOT EXISTS (SELECT user_id, group_id from userGroups WHERE user_id = $1 AND group_id = $2)
     RETURNING *;
     `, [user_id, group_id]
   ).then(({rows: [userGroup]}) => {
