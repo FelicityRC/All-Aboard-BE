@@ -62,6 +62,13 @@ exports.insertUserToUserGroups = (user_id, group_id) => {
     RETURNING *;
     `, [user_id, group_id]
   ).then(({rows: [userGroup]}) => {
-    return userGroup;
+    if (!userGroup) {
+      return Promise.reject({
+        status: 400,
+        msg: "User is already included",
+      });
+    } else {
+      return userGroup;
+    }
   })
 }

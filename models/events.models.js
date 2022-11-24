@@ -171,17 +171,22 @@ exports.insertEvent = (body) => {
   queryString = queryString.slice(0, -2);
   queryString += `) RETURNING *;`;
 
-  return Promise.all([db.query(queryString), user_id]).then((promises) => {
-    const junctionUpdate =     `
+  return Promise.all([db.query(queryString), user_id])
+    .then((promises) => {
+      const junctionUpdate = `
     INSERT INTO userEvents
     (user_id, event_id, organiser)
     VALUES
     ($1, $2, true)
-    RETURNING *;`
-    return Promise.all([db.query(junctionUpdate, [user_id, promises[0].rows[0].event_id]), promises[0].rows[0]])
-  }).then((promises) => {
-    return promises[1]
-  })
+    RETURNING *;`;
+      return Promise.all([
+        db.query(junctionUpdate, [user_id, promises[0].rows[0].event_id]),
+        promises[0].rows[0],
+      ]);
+    })
+    .then((promises) => {
+      return promises[1];
+    });
 };
 
 exports.insertUserToUserEvents = (user_id, event_id) => {
@@ -196,7 +201,14 @@ exports.insertUserToUserEvents = (user_id, event_id) => {
       [user_id, event_id]
     )
     .then(({ rows: [userEvent] }) => {
-      return userEvent;
+      if (!userEvent) {
+        return Promise.reject({
+          status: 400,
+          msg: "User is already included",
+        });
+      } else {
+        return userEvent;
+      }
     });
 };
 //
@@ -214,7 +226,14 @@ exports.insertGameToEventGames = (game_id, event_id) => {
       [game_id, event_id]
     )
     .then(({ rows: [eventGame] }) => {
-      return eventGame;
+      if (!eventGame) {
+        return Promise.reject({
+          status: 400,
+          msg: "Game is already included",
+        });
+      } else {
+        return eventGame;
+      }
     });
 };
 

@@ -84,7 +84,11 @@ exports.insertGameToUserGames = (user_id, game_id) => {
       [game_id, user_id]
     )
     .then(({ rows: [userGame] }) => {
-      return userGame;
+      if (!userGame) {
+        return Promise.reject({ status: 400, msg: "Game is already included" });
+      } else {
+        return userGame;
+      }
     });
 };
 

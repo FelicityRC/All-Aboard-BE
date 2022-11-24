@@ -704,6 +704,15 @@ describe("POST", () => {
             expect(msg).toBe("User Not Found");
           });
       });
+      it("status: 400, game already exists in user", () => {
+        return request(app)
+          .post("/api/users/1/games")
+          .send({game_id: 1})
+          .expect(400)
+          .then(({body: {msg}}) => {
+            expect(msg).toBe("Game is already included")
+          })
+      })
     });
   });
   describe("/api/events", () => {
@@ -808,6 +817,15 @@ describe("POST", () => {
             expect(msg).toBe("Event Not Found");
           });
       });
+      it("status: 400, user already exists in event", () => {
+        return request(app)
+          .post("/api/events/1/users")
+          .send({user_id: 1})
+          .expect(400)
+          .then(({body: {msg}}) => {
+            expect(msg).toBe("User is already included")
+          })
+      })
     });
   });
   describe("/api/events/:event_id/games", () => {
@@ -864,6 +882,15 @@ describe("POST", () => {
             expect(msg).toBe("Event Not Found");
           });
       });
+      it("status: 400, game already exists in event", () => {
+        return request(app)
+          .post("/api/events/1/games")
+          .send({game_id: 1})
+          .expect(400)
+          .then(({body: {msg}}) => {
+            expect(msg).toBe("Game is already included")
+          })
+      })
     });
   });
   describe("/api/groups/:group_id/users", () => {
@@ -921,6 +948,15 @@ describe("POST", () => {
             expect(msg).toBe("Group Not Found");
           });
       });
+      it("status: 400, user already exists in group", () => {
+        return request(app)
+          .post("/api/groups/1/users")
+          .send({user_id: 1})
+          .expect(400)
+          .then(({body: {msg}}) => {
+            expect(msg).toBe("User is already included")
+          })
+      })
     });
   });
 });
