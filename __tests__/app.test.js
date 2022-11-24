@@ -33,7 +33,7 @@ describe("GET", () => {
           .expect(200)
           .then(({ body: { users } }) => {
             expect(users).toBeInstanceOf(Array);
-            expect(users).toHaveLength(2);
+            expect(users).toHaveLength(3);
             users.forEach((user) => {
               expect(user).toEqual(
                 expect.objectContaining({
@@ -331,7 +331,7 @@ describe("GET", () => {
           .expect(200)
           .then(({ body: { events } }) => {
             expect(events).toBeInstanceOf(Array);
-            expect(events).toHaveLength(2);
+            expect(events).toHaveLength(3);
             events.forEach((event) => {
               expect(event).toEqual(
                 expect.objectContaining({
@@ -621,15 +621,15 @@ describe("POST", () => {
         return request(app)
           .post("/api/users")
           .send({
-            uid: "3",
+            uid: "4",
             username: "Facility",
             location: "Manchester",
           })
           .expect(201)
           .then(({ body: { user } }) => {
             expect(user).toEqual({
-              uid: "3",
-              user_id: 3,
+              uid: "4",
+              user_id: 4,
               username: "Facility",
               location: "Manchester",
             });
@@ -704,6 +704,15 @@ describe("POST", () => {
             expect(msg).toBe("User Not Found");
           });
       });
+      it("status: 400, game already exists in user", () => {
+        return request(app)
+          .post("/api/users/1/games")
+          .send({game_id: 1})
+          .expect(400)
+          .then(({body: {msg}}) => {
+            expect(msg).toBe("Game is already included")
+          })
+      })
     });
   });
   describe("/api/events", () => {
@@ -724,7 +733,7 @@ describe("POST", () => {
           .expect(201)
           .then(({ body: { event } }) => {
             expect(event).toEqual({
-              event_id: 3,
+              event_id: 4,
               title: "Be There or Be Square",
               description: null,
               latitude: "53.400002",
@@ -757,15 +766,15 @@ describe("POST", () => {
     describe("Functionality", () => {
       it("inserts a new user into userEvents", () => {
         return request(app)
-          .post("/api/events/1/users")
+          .post("/api/events/3/users")
           .send({ user_id: 1 })
           .expect(201)
           .then(({ body: { userEvent } }) => {
             expect(userEvent).toEqual({
-              event_id: 1,
+              event_id: 3,
               organiser: false,
               user_id: 1,
-              userevents_id: 5,
+              userevents_id: 6,
             });
           });
       });
@@ -808,6 +817,15 @@ describe("POST", () => {
             expect(msg).toBe("Event Not Found");
           });
       });
+      it("status: 400, user already exists in event", () => {
+        return request(app)
+          .post("/api/events/1/users")
+          .send({user_id: 1})
+          .expect(400)
+          .then(({body: {msg}}) => {
+            expect(msg).toBe("User is already included")
+          })
+      })
     });
   });
   describe("/api/events/:event_id/games", () => {
@@ -864,6 +882,15 @@ describe("POST", () => {
             expect(msg).toBe("Event Not Found");
           });
       });
+      it("status: 400, game already exists in event", () => {
+        return request(app)
+          .post("/api/events/1/games")
+          .send({game_id: 1})
+          .expect(400)
+          .then(({body: {msg}}) => {
+            expect(msg).toBe("Game is already included")
+          })
+      })
     });
   });
   describe("/api/groups/:group_id/users", () => {
@@ -871,13 +898,13 @@ describe("POST", () => {
       it("inserts a new user into userGroups", () => {
         return request(app)
           .post("/api/groups/1/users")
-          .send({ user_id: 1 })
+          .send({ user_id: 3 })
           .expect(201)
           .then(({ body: { userGroup } }) => {
             expect(userGroup).toEqual({
               group_id: 1,
               organiser: false,
-              user_id: 1,
+              user_id: 3,
               usergroups_id: 5,
             });
           });
@@ -921,6 +948,15 @@ describe("POST", () => {
             expect(msg).toBe("Group Not Found");
           });
       });
+      it("status: 400, user already exists in group", () => {
+        return request(app)
+          .post("/api/groups/1/users")
+          .send({user_id: 1})
+          .expect(400)
+          .then(({body: {msg}}) => {
+            expect(msg).toBe("User is already included")
+          })
+      })
     });
   });
 });

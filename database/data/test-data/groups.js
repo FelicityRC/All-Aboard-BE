@@ -5,4 +5,7 @@ module.exports = [
   {
     name: "buscat",
   },
+  {
+    name: "kodama"
+  }
 ];

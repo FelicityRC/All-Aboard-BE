@@ -36,7 +36,6 @@ exports.postEvent = (req, res, next) => {
       res.status(201).send({ event });
     })
     .catch((err) => {
-      console.log(err)
       next(err);
     });
 };

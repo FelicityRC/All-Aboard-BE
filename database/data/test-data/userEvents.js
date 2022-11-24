@@ -17,6 +17,7 @@ module.exports = [
   {
     user_id: 2,
     event_id: 2,
-    organiser: true
-  }
+    organiser: true,
+  },
+  { user_id: 3, event_id: 3, organiser: true },
 ];
